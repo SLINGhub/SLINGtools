@@ -4,7 +4,7 @@
 
 #' Read and convert an Agilent MassHunter Quant CSV result file
 #'
-#' @param rawFileName
+#' @param rawFileName File path of MassHunter Quant CSV file
 #'
 #' @return A tibble in the long format
 #' @export
@@ -74,15 +74,12 @@ read_MassHunterCSV <- function(rawFileName) {
     }
   }
 
-
   # Concatenate rows containing parameters + compounds to the form parameter.sample and parameter.compound headers. This will later be converted with reshape()
   datWide <- datWide %>% {
     setNames(., paste(.[2, ], .[1, ], sep = "\t"))
   }
   datWide <-
     datWide[-1:-2, ]  # remove lines with header and first two empty columns (Sample and empty with only !)
-
-
 
   # Rename some known column header names and remove columns that are not needed or not informative.
   old = c(
@@ -125,12 +122,9 @@ read_MassHunterCSV <- function(rawFileName) {
     colnames(datWide[, -1:-tail(grep("\\\t", colnames(datWide), invert =  TRUE), 1)])
 
   # Obtain long table of all param-compound combinations, split param and compund name and then spread values of different param as columns
-  datLong <- datWide %>%
-    tidyr::gather(key = "ParamCompound",
-           value = "Value",
-           all_of(param_compound_names)) %>%
-    tidyr::separate(col = ParamCompound, into = c("Param", "Compound"), "\t") %>%
-    tidyr::spread(Param, Value)
+  datLong <- datWide |>
+    pivot_longer(cols=param_compound_names, names_pattern = "(.*)\t(.*)$", names_to = c("Param", "Compound")) |>
+    pivot_wider(names_from = "Param" ,values_from = "value")
 
   # Convert types of knows parameters and fields in the data set
   # ------------------------------------------------------------
@@ -149,10 +143,14 @@ read_MassHunterCSV <- function(rawFileName) {
       )
     ),
     .funs = list( ~ stringr::str_squish(.))) %>%
-    dplyr::mutate_at(.vars = dplyr::vars(matches("AcqTimeStamp")), .funs = list( ~ lubridate::dmy_hm(.)))
+  dplyr::mutate(AcqTimeStamp = lubridate::mdy_hm(AcqTimeStamp))
+
   datLong <- datLong %>% dplyr::ungroup() %>% dplyr::rename(Intensity = Area,
                                               DataName = SampleName)
   cat(length(unique(datLong$Compound)), "transitions; ", fill = FALSE)
   cat(length(unique(datLong$DataFileName)), "samples", fill = TRUE)
   return(datLong)
 }
+
+
+SLINGtools::read_MassHunterCSV(data_file_path )
