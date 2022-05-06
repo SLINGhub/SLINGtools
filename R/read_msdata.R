@@ -4,17 +4,26 @@
 
 #' Read and convert an Agilent MassHunter Quant CSV result file
 #'
-#' @param rawFileName
+#'
+#' @param rawFileName path
 #'
 #' @return A tibble in the long format
 #' @export
 #'
+#' @importFrom stats na.omit setNames
+#' @importFrom utils tail
+#' @importFrom rlang .data
+#'
 #' @examples
 #' library(SLINGtools)
 #'
-#' data_file_path <- system.file("extdata", "Testdata_Lipidomics_MHQuant_Detailed.csv", package = "SLINGtools")
+#' data_file_path <- system.file("extdata",
+#'   "Testdata_Lipidomics_MHQuant_Detailed.csv",
+#'   package = "SLINGtools")
 #' d <- read_MassHunterCSV(data_file_path)
 #' d
+#'
+
 #'
 read_MassHunterCSV <- function(rawFileName) {
 
@@ -128,14 +137,14 @@ read_MassHunterCSV <- function(rawFileName) {
   datLong <- datWide %>%
     tidyr::gather(key = "ParamCompound",
            value = "Value",
-           all_of(param_compound_names)) %>%
-    tidyr::separate(col = ParamCompound, into = c("Param", "Compound"), "\t") %>%
-    tidyr::spread(Param, Value)
+           tidyr::all_of(param_compound_names)) %>%
+    tidyr::separate(col = .data$ParamCompound, into = c("Param", "Compound"), "\t") %>%
+    tidyr::spread(.data$Param, .data$Value)
 
   # Convert types of knows parameters and fields in the data set
   # ------------------------------------------------------------
   datLong <- datLong %>%
-    dplyr::mutate(Compound = trimws(Compound)) %>%
+    dplyr::mutate(Compound = trimws(.data$Compound)) %>%
     dplyr::mutate_if(is.character, stringr::str_squish) %>%
     dplyr::mutate_at(.vars = dplyr::vars(
       dplyr::matches(
@@ -148,10 +157,10 @@ read_MassHunterCSV <- function(rawFileName) {
         "Compound|QuantWarning|DataFileName|SampleName|SampleType|VialPosition|Method"
       )
     ),
-    .funs = list( ~ stringr::str_squish(.))) %>%
-    dplyr::mutate_at(.vars = dplyr::vars(matches("AcqTimeStamp")), .funs = list( ~ lubridate::dmy_hm(.)))
-  datLong <- datLong %>% dplyr::ungroup() %>% dplyr::rename(Intensity = Area,
-                                              DataName = SampleName)
+    .funs = list( ~ stringr::str_squish)) %>%
+    dplyr::mutate_at(.vars = dplyr::vars(dplyr::matches("AcqTimeStamp")), .funs = list( ~ lubridate::mdy_hm(.)))
+  datLong <- datLong %>% dplyr::ungroup() %>% dplyr::rename(Intensity = .data$Area,
+                                              DataName = .data$SampleName)
   cat(length(unique(datLong$Compound)), "transitions; ", fill = FALSE)
   cat(length(unique(datLong$DataFileName)), "samples", fill = TRUE)
   return(datLong)

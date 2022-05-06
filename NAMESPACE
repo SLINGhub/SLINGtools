@@ -3,3 +3,7 @@
 export("%>%")
 export(read_MassHunterCSV)
 importFrom(magrittr,"%>%")
+importFrom(rlang,.data)
+importFrom(stats,na.omit)
+importFrom(stats,setNames)
+importFrom(utils,tail)
