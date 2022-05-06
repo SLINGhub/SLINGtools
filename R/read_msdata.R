@@ -77,9 +77,10 @@ read_MassHunterCSV <- function(rawFileName, silent = FALSE) {
       datWide[1, c] = col_name
     }
   }
+  datWide[1, ] <- as.list(stringr::str_squish(unlist(datWide[1, ])))
 
   # Concatenate rows containing parameters + transitions to the form parameter.sample and parameter.transition headers. This will later be converted with reshape()
-  colnames(datWide) <- datWide |> dplyr::summarise(dplyr::across(dplyr::everything(), ~paste(.data$.[2], .data$.[1], sep = "\t")))
+  colnames(datWide) <- paste(datWide[2, ], datWide[1, ], sep = "\t")
   datWide <- datWide[-1:-2, ]
 
   # Rename some known column header names and remove columns that are not needed or not informative.
@@ -117,10 +118,17 @@ read_MassHunterCSV <- function(rawFileName, silent = FALSE) {
   # Transform wide to long (tidy) table format
   # ------------------------------------------
 
+  datWide <- datWide %>%
+    dplyr::mutate(
+      AcqTimeStamp = lubridate::mdy_hm(.data$AcqTimeStamp),
+      dplyr::across(.cols = dplyr::any_of(c("SampleName")),
+                    .fns = stringr::str_squish)
+    )
 
   # obtain list with column names of the columns that define transition values (e.g. "RT Cer d16:0/18:0"). Delimuter is currently tab (\t)
   param_transition_names <-
     colnames(datWide[, -1:-tail(grep("\\\t", colnames(datWide), invert =  TRUE), 1)])
+
 
   # Obtain long table of all param-transition combinations, split param and compund name and then spread values of different param as columns
   datLong <- datWide |>
@@ -129,9 +137,8 @@ read_MassHunterCSV <- function(rawFileName, silent = FALSE) {
 
   # Convert types of knows parameters and fields in the data set
   # ------------------------------------------------------------
+
   datLong <- datLong %>%
-    dplyr::mutate(
-      dplyr::across(where(is.character), stringr::str_squish)) %>%
     dplyr::mutate(
       dplyr::across(.cols = dplyr::any_of(c("RT", "Area", "Height","FWHM","Width","SN","IntStart","IntEnd",
                                     "Symmetry","InjVolume", "Precursor Ion", "Product Ion", "Collision Energy")),
@@ -139,10 +146,7 @@ read_MassHunterCSV <- function(rawFileName, silent = FALSE) {
       dplyr::across(.cols = dplyr::any_of(c("MI")),
                     .fns = as.logical),
       dplyr::across(.cols = dplyr::any_of(c("Ion Polarity")),
-                    .fns = as.factor),
-      dplyr::across(.cols = dplyr::any_of(c("Feature","QuantWarning","DataFileName","SampleName","SampleType","VialPosition","Method")),
-                    .fns = stringr::str_squish),
-      AcqTimeStamp = lubridate::mdy_hm(.data$AcqTimeStamp)
+                    .fns = as.factor)
       )
 
   datLong <- datLong %>%
