@@ -1,34 +1,28 @@
-
-
-
-
 #' Read and convert an Agilent MassHunter Quant CSV result file
 #'
-#'
-#' @param rawFileName path
+#' @param rawFileName File path of MassHunter Quant CSV file
+#' @param silent Suppress messages
 #'
 #' @return A tibble in the long format
 #' @export
 #'
+#' @importFrom rlang .data
 #' @importFrom stats na.omit setNames
 #' @importFrom utils tail
-#' @importFrom rlang .data
+#' @importFrom tidyselect vars_select_helpers
 #'
 #' @examples
 #' library(SLINGtools)
 #'
 #' data_file_path <- system.file("extdata",
-#'   "Testdata_Lipidomics_MHQuant_Detailed.csv",
-#'   package = "SLINGtools")
+#'   "Testdata_Lipidomics_MHQuant_Detailed.csv", package = "SLINGtools")
 #' d <- read_MassHunterCSV(data_file_path)
 #' d
 #'
-
 #'
-read_MassHunterCSV <- function(rawFileName) {
+read_MassHunterCSV <- function(rawFileName, silent = FALSE) {
 
-    cat(paste0("Importing ", rawFileName, ": "), fill = FALSE)
-
+  if(!silent) cat(paste0("Reading '", basename(rawFileName), "' ... "), fill = TRUE, sep = " ")
   # if (shiny::isRunning())
   #   incProgress(1 / length(n_datafiles), detail = paste0("", basename(rawFileName)))
   #
@@ -59,16 +53,17 @@ read_MassHunterCSV <- function(rawFileName) {
     gsub("/", "", y))
 
 
-  # Fill in compound name in empty columns (different parameters of the same compound)
+  # Fill in transition name in empty columns (different parameters of the same transition)
   # Dealing with exported "Qualifier" results: Adds the corresponding quantifier name (the first column of the group) with the Tag "QUAL" and the transition in front e.g. "Sph d18:0 [QUAL 302.3>266.2]"
   col_name = "Sample"
   isFirstQualifier = TRUE
+  quantifier_name =
   for (c in 1:ncol(datWide)) {
     val = datWide[1, c]
     #print(val)
     if (grepl("^Qualifier \\(", val)) {
       qualifier_transition_name <-
-        val %>% stringr::str_replace(., "Qualifier", "QUAL") %>% stringr::str_replace(., "\\(", "") %>% stringr::str_replace(., "\\)", "\\]") %>% stringr::str_replace(., " \\-\\> ", " \\> ")
+        val %>% stringr::str_replace("Qualifier", "QUAL") %>% stringr::str_replace("\\(", "") %>% stringr::str_replace("\\)", "\\]") %>% stringr::str_replace(" \\-\\> ", " \\> ")
       datWide[1, c] = paste(quantifier_name, " [", qualifier_transition_name, sep = "")
       col_name = datWide[1, c]
     } else if ((!is.na(val)) && nchar(val, keepNA = TRUE) > 0) {
@@ -83,15 +78,9 @@ read_MassHunterCSV <- function(rawFileName) {
     }
   }
 
-
-  # Concatenate rows containing parameters + compounds to the form parameter.sample and parameter.compound headers. This will later be converted with reshape()
-  datWide <- datWide %>% {
-    setNames(., paste(.[2, ], .[1, ], sep = "\t"))
-  }
-  datWide <-
-    datWide[-1:-2, ]  # remove lines with header and first two empty columns (Sample and empty with only !)
-
-
+  # Concatenate rows containing parameters + transitions to the form parameter.sample and parameter.transition headers. This will later be converted with reshape()
+  colnames(datWide) <- datWide |> dplyr::summarise(dplyr::across(dplyr::everything(), ~paste(.data$.[2], .data$.[1], sep = "\t")))
+  datWide <- datWide[-1:-2, ]
 
   # Rename some known column header names and remove columns that are not needed or not informative.
   old = c(
@@ -129,39 +118,43 @@ read_MassHunterCSV <- function(rawFileName) {
   # ------------------------------------------
 
 
-  # obtain list with column names of the columns that define compound values (e.g. "RT Cer d16:0/18:0"). Delimuter is currently tab (\t)
-  param_compound_names <-
+  # obtain list with column names of the columns that define transition values (e.g. "RT Cer d16:0/18:0"). Delimuter is currently tab (\t)
+  param_transition_names <-
     colnames(datWide[, -1:-tail(grep("\\\t", colnames(datWide), invert =  TRUE), 1)])
 
-  # Obtain long table of all param-compound combinations, split param and compund name and then spread values of different param as columns
-  datLong <- datWide %>%
-    tidyr::gather(key = "ParamCompound",
-           value = "Value",
-           tidyr::all_of(param_compound_names)) %>%
-    tidyr::separate(col = .data$ParamCompound, into = c("Param", "Compound"), "\t") %>%
-    tidyr::spread(.data$Param, .data$Value)
+  # Obtain long table of all param-transition combinations, split param and compund name and then spread values of different param as columns
+  datLong <- datWide |>
+    tidyr::pivot_longer(cols=param_transition_names, names_pattern = "(.*)\t(.*)$", names_to = c("Param", "Feature")) |>
+    tidyr::pivot_wider(names_from = "Param" ,values_from = "value")
 
   # Convert types of knows parameters and fields in the data set
   # ------------------------------------------------------------
   datLong <- datLong %>%
-    dplyr::mutate(Compound = trimws(.data$Compound)) %>%
-    dplyr::mutate_if(is.character, stringr::str_squish) %>%
-    dplyr::mutate_at(.vars = dplyr::vars(
-      dplyr::matches(
-        "RT|Area|Height|FWHM|Width|SN|IntStart|IntEnd|Symmetry|InjVolume"
+    dplyr::mutate(
+      dplyr::across(where(is.character), stringr::str_squish)) %>%
+    dplyr::mutate(
+      dplyr::across(.cols = dplyr::any_of(c("RT", "Area", "Height","FWHM","Width","SN","IntStart","IntEnd",
+                                    "Symmetry","InjVolume", "Precursor Ion", "Product Ion", "Collision Energy")),
+                    .fns = as.numeric),
+      dplyr::across(.cols = dplyr::any_of(c("MI")),
+                    .fns = as.logical),
+      dplyr::across(.cols = dplyr::any_of(c("Ion Polarity")),
+                    .fns = as.factor),
+      dplyr::across(.cols = dplyr::any_of(c("Feature","QuantWarning","DataFileName","SampleName","SampleType","VialPosition","Method")),
+                    .fns = stringr::str_squish),
+      AcqTimeStamp = lubridate::mdy_hm(.data$AcqTimeStamp)
       )
-    ),
-    .funs = list( ~ as.numeric(.))) %>%
-    dplyr::mutate_at(.vars = dplyr::vars(
-      dplyr::matches(
-        "Compound|QuantWarning|DataFileName|SampleName|SampleType|VialPosition|Method"
-      )
-    ),
-    .funs = list( ~ stringr::str_squish)) %>%
-    dplyr::mutate_at(.vars = dplyr::vars(dplyr::matches("AcqTimeStamp")), .funs = list( ~ lubridate::mdy_hm(.)))
-  datLong <- datLong %>% dplyr::ungroup() %>% dplyr::rename(Intensity = .data$Area,
-                                              DataName = .data$SampleName)
-  cat(length(unique(datLong$Compound)), "transitions; ", fill = FALSE)
-  cat(length(unique(datLong$DataFileName)), "samples", fill = TRUE)
-  return(datLong)
+
+  datLong <- datLong %>%
+    dplyr::rename(Intensity = .data$Area,
+                  DataName = .data$SampleName,
+                  PrecursorMZ = .data$`Precursor Ion`,
+                  ProductMZ = .data$`Product Ion`,
+                  CollisionEnergy = .data$`Collision Energy`,
+                  IonPolarity = .data$`Ion Polarity`)
+  if(!silent) {
+    cat("Imported ", length(unique(datLong$DataFileName)), "samples with ", fill = FALSE)
+    cat(length(unique(datLong$Feature)), "transitions ", fill = FALSE)
+  }
+  datLong
 }

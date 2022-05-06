@@ -4,10 +4,12 @@
 \alias{read_MassHunterCSV}
 \title{Read and convert an Agilent MassHunter Quant CSV result file}
 \usage{
-read_MassHunterCSV(rawFileName)
+read_MassHunterCSV(rawFileName, silent = FALSE)
 }
 \arguments{
-\item{rawFileName}{path}
+\item{rawFileName}{File path of MassHunter Quant CSV file}
+
+\item{silent}{Suppress messages}
 }
 \value{
 A tibble in the long format
@@ -19,8 +21,7 @@ Read and convert an Agilent MassHunter Quant CSV result file
 library(SLINGtools)
 
 data_file_path <- system.file("extdata",
-  "Testdata_Lipidomics_MHQuant_Detailed.csv",
-  package = "SLINGtools")
+  "Testdata_Lipidomics_MHQuant_Detailed.csv", package = "SLINGtools")
 d <- read_MassHunterCSV(data_file_path)
 d
 
