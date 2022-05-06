@@ -1,7 +1,4 @@
 
-
-
-
 #' Read and convert an Agilent MassHunter Quant CSV result file
 #'
 #' @param rawFileName File path of MassHunter Quant CSV file
@@ -153,4 +150,3 @@ read_MassHunterCSV <- function(rawFileName) {
 }
 
 
-SLINGtools::read_MassHunterCSV(data_file_path )
