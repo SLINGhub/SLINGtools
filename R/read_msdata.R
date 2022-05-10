@@ -160,5 +160,6 @@ read_MassHunterCSV <- function(rawFileName, silent = FALSE) {
     cat("Imported ", length(unique(datLong$DataFileName)), "samples with ", fill = FALSE)
     cat(length(unique(datLong$Feature)), "transitions ", fill = FALSE)
   }
+
   datLong
 }
