@@ -4,14 +4,14 @@
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
-A set of R functions to facilitate managing, processing and evaluating lipidomics data in R.
+R functions to facilitate managing, processing and evaluating lipidomics data in R.
 
 ## Installation
 
 You can install the development version of SLINGtools like so:
 
 ``` r
-# install.packages("remotes")
+if (!require("remotes")) install.packages("remotes")
 remotes::install_github("SLINGhub/SLINGtools")
 ```
 
@@ -21,10 +21,11 @@ remotes::install_github("SLINGhub/SLINGtools")
 ``` r
 library(SLINGtools)
 
-data_file_path <- system.file("extdata", "Testdata_Lipidomics_MHQuant_Detailed.csv", package = "SLINGtools")
+data_file_path <- system.file("extdata", "Testdata_Lipidomics_MHQuant_Detailed.csv", 
+                              package = "SLINGtools")
+
 d <- read_MassHunterCSV(data_file_path)
-d
-View(d)
+print(d)
 ```
 
 ## Contributor Code of Conduct
