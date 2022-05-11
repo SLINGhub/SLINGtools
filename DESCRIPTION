@@ -21,8 +21,7 @@ Suggests:
     tibble,
     tidyr
 Config/testthat/edition: 3
-URL: https://github.com/SLINGhub/SLINGtools,
-    https://slinghub.github.io/SLINGtools/
+URL: https://github.com/SLINGhub/SLINGtools
 BugReports: https://github.com/SLINGhub/SLINGtools/issues
 Imports: 
     lubridate,
