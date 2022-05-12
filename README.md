@@ -4,7 +4,7 @@
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
-R functions to facilitate managing, processing and evaluating lipidomics data in R.
+R functions to facilitate managing, processing and evaluating lipidomics data.
 
 ## Installation
 
