@@ -2,6 +2,7 @@
 
 export("%>%")
 export(read_MassHunterCSV)
+export(read_peakareas_MassHunterCSV)
 importFrom(magrittr,"%>%")
 importFrom(rlang,.data)
 importFrom(stats,na.omit)

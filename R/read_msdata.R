@@ -1,6 +1,6 @@
 #' Read and convert an Agilent MassHunter Quant CSV result file
 #'
-#' @param rawFileName File path of MassHunter Quant CSV file
+#' @param file File path of MassHunter Quant CSV file
 #' @param silent Suppress messages
 #'
 #' @return A tibble in the long format
@@ -20,16 +20,16 @@
 #' d
 #'
 #'
-read_MassHunterCSV <- function(rawFileName, silent = FALSE) {
+read_MassHunterCSV <- function(file, silent = FALSE) {
 
-  if(!silent) cat(paste0("Reading '", basename(rawFileName), "' ... "), fill = TRUE, sep = " ")
+  if(!silent) cat(paste0("Reading '", basename(file), "' ... "), fill = TRUE, sep = " ")
   # if (shiny::isRunning())
-  #   incProgress(1 / length(n_datafiles), detail = paste0("", basename(rawFileName)))
+  #   incProgress(1 / length(n_datafiles), detail = paste0("", basename(file)))
   #
   # Read Agilent MassHunter Quant Export file (CSV)
   datWide <-
     readr::read_csv(
-      file = rawFileName,
+      file = file,
       col_names = FALSE,
       na = c("#N/A", "NULL"),
       trim_ws = TRUE,
@@ -130,7 +130,7 @@ read_MassHunterCSV <- function(rawFileName, silent = FALSE) {
 
   # Obtain long table of all param-transition combinations, split param and compund name and then spread values of different param as columns
   datLong <- datWide |>
-    tidyr::pivot_longer(cols=param_transition_names, names_pattern = "(.*)\t(.*)$", names_to = c("Param", "Feature")) |>
+    tidyr::pivot_longer(cols = tidyselect::all_of(param_transition_names), names_pattern = "(.*)\t(.*)$", names_to = c("Param", "Feature")) |>
     tidyr::pivot_wider(names_from = "Param" ,values_from = "value")
 
   # Convert types of knows parameters and fields in the data set
@@ -160,4 +160,45 @@ read_MassHunterCSV <- function(rawFileName, silent = FALSE) {
   }
 
   datLong
+}
+
+
+#' Import peak areas from a Agilent MassHunter Quant CSV result file into a flat wide table
+#'
+#' @param file File name and path of the MassHunter Quant CSV file
+#' @param silent Suppress messages
+#'
+#' @return A tibble in the long format
+#' @export
+#'
+#' @importFrom rlang .data
+#' @importFrom stats na.omit setNames
+#' @importFrom utils tail
+#' @importFrom tidyselect vars_select_helpers
+
+#'
+#' @examples
+#' library(SLINGtools)
+#'
+#' data_file_path <- system.file("extdata",
+#'   "Testdata_Lipidomics_MHQuant_Detailed.csv", package = "SLINGtools")
+#' d_area <- read_peakareas_MassHunterCSV(data_file_path)
+#' d_area
+#'
+#'
+read_peakareas_MassHunterCSV <- function(file, silent = FALSE) {
+
+  sample_def_cols = c(
+    "DataFileName",
+    "SampleName",
+    "AcqTimeStamp",
+    "SampleType",
+    "VialPosition",
+    "InjVolume",
+    "SampleType"
+  )
+  d <- read_MassHunterCSV(file, silent) |>
+    dplyr::select(tidyselect::any_of(sample_def_cols), .data$Feature, .data$Intensity)
+
+  d |> tidyr::pivot_wider(names_from = "Feature", values_from = "Intensity")
 }
