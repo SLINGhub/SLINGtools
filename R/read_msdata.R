@@ -129,8 +129,8 @@ read_MassHunterCSV <- function(file, silent = FALSE) {
 
 
   # Obtain long table of all param-transition combinations, split param and compund name and then spread values of different param as columns
-  datLong <- datWide |>
-    tidyr::pivot_longer(cols = tidyselect::all_of(param_transition_names), names_pattern = "(.*)\t(.*)$", names_to = c("Param", "Feature")) |>
+  datLong <- datWide %>%
+    tidyr::pivot_longer(cols = tidyselect::all_of(param_transition_names), names_pattern = "(.*)\t(.*)$", names_to = c("Param", "Feature")) %>%
     tidyr::pivot_wider(names_from = "Param" ,values_from = "value")
 
   # Convert types of knows parameters and fields in the data set
@@ -197,8 +197,8 @@ read_peakareas_MassHunterCSV <- function(file, silent = FALSE) {
     "InjVolume",
     "SampleType"
   )
-  d <- read_MassHunterCSV(file, silent) |>
+  d <- read_MassHunterCSV(file, silent) %>%
     dplyr::select(tidyselect::any_of(sample_def_cols), .data$Feature, .data$Intensity)
 
-  d |> tidyr::pivot_wider(names_from = "Feature", values_from = "Intensity")
+  d %>% tidyr::pivot_wider(names_from = "Feature", values_from = "Intensity")
 }
