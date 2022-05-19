@@ -118,7 +118,8 @@ read_MassHunterCSV <- function(file, silent = FALSE) {
 
   datWide <- datWide %>%
     dplyr::mutate(
-      AcqTimeStamp = lubridate::mdy_hm(.data$AcqTimeStamp),
+      dplyr::across(.cols = dplyr::any_of(c("AcqTimeStamp")),
+                    .fns = lubridate::mdy_hm),
       dplyr::across(.cols = dplyr::any_of(c("SampleName")),
                     .fns = stringr::str_squish)
     )
