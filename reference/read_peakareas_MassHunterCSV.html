@@ -74,28 +74,9 @@
 <span class="r-in">  <span class="st">"Testdata_Lipidomics_MHQuant_Detailed.csv"</span>, package <span class="op">=</span> <span class="st">"SLINGtools"</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">d_area</span> <span class="op">&lt;-</span> <span class="fu">read_peakareas_MassHunterCSV</span><span class="op">(</span><span class="va">data_file_path</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Reading 'Testdata_Lipidomics_MHQuant_Detailed.csv' ... </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Imported  215 samples with 428 transitions </span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in add_row(datWide, .after = 1):</span> could not find function "add_row"</span>
 <span class="r-in"><span class="va">d_area</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 215 × 432</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    DataFileName  AcqTimeStamp        SampleType VialPosition `CE 14:0` `CE 15:0`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> 001_EQC_TQC … 2018-04-12 <span style="color: #949494;">18:28:00</span> Sample     Vial 2            <span style="text-decoration: underline;">1</span>532       515</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> 002_EQC_TQC … 2018-04-12 <span style="color: #949494;">18:39:00</span> Sample     Vial 2            <span style="text-decoration: underline;">1</span>029       911</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> 003_EQC_TQC … 2018-04-12 <span style="color: #949494;">18:51:00</span> Sample     Vial 2             685       649</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> 004_EQC_TQC … 2018-04-12 <span style="color: #949494;">19:02:00</span> Sample     Vial 2            <span style="text-decoration: underline;">1</span>283       576</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> 005_EQC_TQC … 2018-04-12 <span style="color: #949494;">19:13:00</span> Sample     Vial 2             946       732</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> 006_EBLK_Ext… 2018-04-12 <span style="color: #949494;">19:25:00</span> Sample     P1-A1              132        75</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> 007_SOLV_Bla… 2018-04-12 <span style="color: #949494;">19:36:00</span> Sample     Vial 1             241        56</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> 008_LTR_LTR0… 2018-04-12 <span style="color: #949494;">19:48:00</span> Sample     P1-A2             <span style="text-decoration: underline;">1</span>118       905</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> 009_NIST_NIS… 2018-04-12 <span style="color: #949494;">19:59:00</span> Sample     P1-A3             <span style="text-decoration: underline;">1</span>499       482</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> 010_TQCd-0_T… 2018-04-12 <span style="color: #949494;">20:11:00</span> Sample     Vial 4              77        96</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># … with 205 more rows, and 426 more variables: `CE 16:0` &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   `CE 16:1` &lt;dbl&gt;, `CE 16:2` &lt;dbl&gt;, `CE 17:0` &lt;dbl&gt;, `CE 17:1` &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   `CE 18:0` &lt;dbl&gt;, `CE 18:1` &lt;dbl&gt;, `CE 18:1 d7 (ISTD)` &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   `CE 18:2` &lt;dbl&gt;, `CE 18:3` &lt;dbl&gt;, `CE 20:1` &lt;dbl&gt;, `CE 20:2` &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   `CE 20:3` &lt;dbl&gt;, `CE 20:4` &lt;dbl&gt;, `CE 20:5` &lt;dbl&gt;, `CE 22:0` &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   `CE 22:1` &lt;dbl&gt;, `CE 22:4` &lt;dbl&gt;, `CE 22:5` &lt;dbl&gt;, `CE 22:6` &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   `CE 24:4` &lt;dbl&gt;, `Cer d18:0/16:0` &lt;dbl&gt;, `Cer d18:0/18:0` &lt;dbl&gt;, …</span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'd_area' not found</span>
 <span class="r-in"></span>
 <span class="r-in"></span>
 </code></pre></div>
