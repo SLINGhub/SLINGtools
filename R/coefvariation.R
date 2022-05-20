@@ -11,7 +11,7 @@
 #'
 #' @examples
 #'
-CVlog <- function(x, ...){
+CVlog <- function(x, na.rm){
   #sqrt(exp(1)^(sd(log(x, ...))^2)-1) *100
-  sqrt(10^(log(10) * sd(log(x, 10), na.rm)^2) - 1) * 100
+  sqrt(10^(log(10) * stats::sd(log(x, 10), na.rm )^2) - 1) * 100
 }
