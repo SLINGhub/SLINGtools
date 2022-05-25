@@ -74,9 +74,24 @@
 <span class="r-in">  <span class="st">"Testdata_Lipidomics_MHQuant_Detailed.csv"</span>, package <span class="op">=</span> <span class="st">"SLINGtools"</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu">read_MassHunterCSV</span><span class="op">(</span><span class="va">data_file_path</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Reading 'Testdata_Lipidomics_MHQuant_Detailed.csv' ... </span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in add_row(datWide, .after = 1):</span> could not find function "add_row"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Imported  215 samples with 428 transitions </span>
 <span class="r-in"><span class="va">d</span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'd' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 92,020 × 14</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    DataFileName     DataName SampleType AcqTimeStamp        VialPosition Feature</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> 001_EQC_TQC pre… 001_EQC… Sample     2018-04-12 <span style="color: #949494;">18:28:00</span> Vial 2       CE 14:0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> 001_EQC_TQC pre… 001_EQC… Sample     2018-04-12 <span style="color: #949494;">18:28:00</span> Vial 2       CE 15:0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> 001_EQC_TQC pre… 001_EQC… Sample     2018-04-12 <span style="color: #949494;">18:28:00</span> Vial 2       CE 16:0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> 001_EQC_TQC pre… 001_EQC… Sample     2018-04-12 <span style="color: #949494;">18:28:00</span> Vial 2       CE 16:1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> 001_EQC_TQC pre… 001_EQC… Sample     2018-04-12 <span style="color: #949494;">18:28:00</span> Vial 2       CE 16:2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> 001_EQC_TQC pre… 001_EQC… Sample     2018-04-12 <span style="color: #949494;">18:28:00</span> Vial 2       CE 17:0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> 001_EQC_TQC pre… 001_EQC… Sample     2018-04-12 <span style="color: #949494;">18:28:00</span> Vial 2       CE 17:1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> 001_EQC_TQC pre… 001_EQC… Sample     2018-04-12 <span style="color: #949494;">18:28:00</span> Vial 2       CE 18:0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> 001_EQC_TQC pre… 001_EQC… Sample     2018-04-12 <span style="color: #949494;">18:28:00</span> Vial 2       CE 18:1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> 001_EQC_TQC pre… 001_EQC… Sample     2018-04-12 <span style="color: #949494;">18:28:00</span> Vial 2       CE 18:…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># … with 92,010 more rows, and 8 more variables: IonPolarity &lt;fct&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   PrecursorMZ &lt;dbl&gt;, ProductMZ &lt;dbl&gt;, CollisionEnergy &lt;dbl&gt;, RT &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   Area &lt;dbl&gt;, FWHM &lt;dbl&gt;, MI &lt;lgl&gt;</span></span>
 <span class="r-in"></span>
 <span class="r-in"></span>
 </code></pre></div>
