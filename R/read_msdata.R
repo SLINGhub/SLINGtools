@@ -34,7 +34,7 @@ read_MassHunterCSV <- function(file, silent = FALSE) {
       na = c("#N/A", "NULL"),
       trim_ws = TRUE,
       col_types = readr::cols(.default = "c"),
-      locale = readr::locale(encoding = 'ISO-8859-1')
+      locale = readr::locale(encoding = 'ISO-8859-1'), num_threads = 4,progress = TRUE
     )
 
   # Remove text that is not required and remove dot chars that interfere later with the conversion wide to long
@@ -53,16 +53,15 @@ read_MassHunterCSV <- function(file, silent = FALSE) {
     gsub("/", "", y))
 
 
-  datWide <- datWide |> add_row(.after = 1)
-  datWide[1, ] <- tibble(A = datWide[1,] |> unlist() |> na_if("")) |>  fill(A) |> unlist() |> as.list()
+  datWide <- datWide |> dplyr::add_row(.after = 1)
+  datWide[1, ] <- tibble::tibble(A = datWide[1,] |> unlist() |> dplyr::na_if("")) |>  tidyr::fill(A) |> unlist() |> as.list()
 
-  datWide[1, ] <- replace(datWide[1,], str_detect(string = datWide[1,] , pattern = "AA"),"")
-  datWide[2, ] <- replace(datWide[1,], !str_detect(string = datWide[1,] , pattern = "AA"),"")
-  # datWide[1, ] <- datWide[1, ] |> mutate(across(everything(), ~ if_else(str_detect(.x, "Qualifier \\("), "",.x)))
-  # datWide[2, ] <- datWide[2, ] |> mutate(across(everything(), ~ if_else(!str_detect(.x, "Qualifier \\("), "",.x)))
-  datWide[1, ] <- tibble(A = datWide[1,] |> unlist() |> na_if("")) |>  fill(A) |> unlist() |> as.list()
-  # Concatenate rows
-  datWide[1, ] <- paste(datWide[1, ], datWide[2, ], sep = " ") |> str_squish() |> as.list()
+  datWide[1, ] <- replace(datWide[1,], stringr::str_detect(string = datWide[1,] , pattern = "AA"),"")
+  datWide[2, ] <- replace(datWide[1,], !stringr::str_detect(string = datWide[1,] , pattern = "AA"),"")
+  datWide[1, ] <- tibble::tibble(A = datWide[1,] |> unlist() |> dplyr::na_if("")) |>  tidyr::fill(A) |> unlist() |> as.list()
+
+   # Concatenate rows
+  datWide[1, ] <- paste(datWide[1, ], datWide[2, ], sep = " ") |> stringr::str_squish() |> as.list()
   datWide <- datWide[-2, ]
 
 
@@ -93,12 +92,17 @@ read_MassHunterCSV <- function(file, silent = FALSE) {
     "InstrumentType" = "Instrument Type\tSample",
     "AcqMethodFile" = "Acq. Method File\tSample",
     "AcqMethodPath" = "Acq. Method Path\tSample",
-    "DataPath" = "Data Path\tSample"
+    "DataPath" = "Data Path\tSample",
+    "QuantitationMessage" = "Quantitation Message\tSample",
+    "NameCompound" = "Name\tCompound"
   )
 
   datWide <- datWide %>% dplyr::rename(dplyr::any_of(new_colnames))
 
+  if("QuantitationMessage" %in% names(datWide)) stop("Field 'Quantitation Message' currently not supported: Please re-export your data in MH without this field.")
+  if("NameCompound" %in% names(datWide)) stop("Compound table format is currently not supported. Please re-export your data in MH with compounds as columns.")
 
+  if(! "DataFileName" %in% names(datWide)) stop("Unknown format, or data file is corrupt. Please try re-export from MH.")
   # Remove ".Sample" from remaining sample description headers and remove known unused columns
   datWide <-
     datWide[, !(names(datWide) %in% c("NA\tSample", "Level\tSample", "Sample"))]
@@ -160,9 +164,10 @@ read_MassHunterCSV <- function(file, silent = FALSE) {
 }
 
 
-#' Import peak areas from a Agilent MassHunter Quant CSV result file into a flat wide table
+#' Reads a defined peak parameter from a Agilent MassHunter Quant CSV result file into a flat wide table
 #'
 #' @param file File name and path of the MassHunter Quant CSV file
+#' @param field Peak parameter (e.g. Area, RT)
 #' @param silent Suppress messages
 #'
 #' @return A tibble in the long format
@@ -179,11 +184,11 @@ read_MassHunterCSV <- function(file, silent = FALSE) {
 #'
 #' data_file_path <- system.file("extdata",
 #'   "Testdata_Lipidomics_MHQuant_Detailed.csv", package = "SLINGtools")
-#' d_area <- read_peakareas_MassHunterCSV(data_file_path)
+#' d_area <- read_MassHunterCSV_wide(data_file_path, field = "Area")
 #' d_area
 #'
 #'
-read_peakareas_MassHunterCSV <- function(file, silent = FALSE) {
+read_MassHunterCSV_wide <- function(file, field, silent = FALSE) {
 
   sample_def_cols = c(
     "DataFileName",
@@ -195,7 +200,7 @@ read_peakareas_MassHunterCSV <- function(file, silent = FALSE) {
     "SampleType"
   )
   d <- read_MassHunterCSV(file, silent) %>%
-    dplyr::select(tidyselect::any_of(sample_def_cols), .data$Feature, .data$Intensity)
+    dplyr::select(tidyselect::any_of(sample_def_cols), .data$Feature, {{field}})
 
-  d %>% tidyr::pivot_wider(names_from = "Feature", values_from = "Intensity")
+  d %>% tidyr::pivot_wider(names_from = "Feature", values_from = {{field}})
 }

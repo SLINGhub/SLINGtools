@@ -1,21 +1,111 @@
-testthat::test_that("read_MassHunterCSV: Detailed MH CSV", {
+testthat::test_that("read_MassHunterCSV: 1_DefaultSampleInfo_AreaOnly", {
 
-    d <- SLINGtools::read_MassHunterCSV("Testdata_Lipidomics_MHQuant_Detailed.csv")
-    dd <- readRDS("Testdata_Lipidomics_MHQuant_Detailed.rds")
+    d <- SLINGtools::read_MassHunterCSV("1_Testdata_MHQuant_DefaultSampleInfo_AreaOnly.csv")
+    dd <- readRDS("1_Testdata_MHQuant_DefaultSampleInfo_AreaOnly.rds")
     expect_identical(d, dd)
 })
 
-testthat::test_that("read_MassHunterCSV: Detailed MH CSV but AcqDateTime missing", {
+testthat::test_that("read_MassHunterCSV: 2_DefaultSampleInfo_RT-Areas-FWHM.csv", {
 
-  d <- SLINGtools::read_MassHunterCSV("Testdata_Lipidomics_MHQuant_Short_Detailed_NoAcqDateTime.csv")
-  dd <- readRDS("Testdata_Lipidomics_MHQuant_Short_Detailed_NoAcqDateTime.rds")
+  d <- SLINGtools::read_MassHunterCSV("2_Testdata_MHQuant_DefaultSampleInfo_RT-Areas-FWHM.csv")
+  dd <- readRDS("2_Testdata_MHQuant_DefaultSampleInfo_RT-Areas-FWHM.rds")
   expect_identical(d, dd)
 })
 
 
+testthat::test_that("read_MassHunterCSV: 3_Testdata_MHQuant_DefaultSampleInfo_DetailedResults.csv", {
 
-testthat::test_that("read_peakareas_MassHunterCSV: Detailed MH CSV", {
-  d <- SLINGtools::read_peakareas_MassHunterCSV("Testdata_Lipidomics_MHQuant_Detailed.csv")
-  dd <- readRDS("Areas_Testdata_Lipidomics_MHQuant_Detailed.rds")
+  d <- SLINGtools::read_MassHunterCSV("3_Testdata_MHQuant_DefaultSampleInfo_DetailedResults.csv")
+  dd <- readRDS("3_Testdata_MHQuant_DefaultSampleInfo_DetailedResults.rds")
+  expect_identical(d, dd)
+})
+
+testthat::test_that("read_MassHunterCSV: 4_Testdata_MHQuant_DefaultSampleInfo_RT-Areas-FWHM_DetailedMethods.rds", {
+
+  d <- SLINGtools::read_MassHunterCSV("4_Testdata_MHQuant_DefaultSampleInfo_RT-Areas-FWHM_DetailedMethods.csv")
+  dd <- readRDS("4_Testdata_MHQuant_DefaultSampleInfo_RT-Areas-FWHM_DetailedMethods.rds")
+  expect_identical(d, dd)
+})
+
+testthat::test_that("read_MassHunterCSV: 5_Testdata_MHQuant_DetailedSampleInfo-RT-Areas-FWHM.csv", {
+
+  d <- SLINGtools::read_MassHunterCSV("5_Testdata_MHQuant_DetailedSampleInfo-RT-Areas-FWHM.csv")
+  dd <- readRDS("5_Testdata_MHQuant_DetailedSampleInfo-RT-Areas-FWHM.rds")
+  expect_identical(d, dd)
+})
+
+testthat::test_that("read_MassHunterCSV: 6_Testdata_MHQuant_DefaultSampleInfo_RT-Areas-FWHM-NoOutlierSum.csv", {
+
+  d <- SLINGtools::read_MassHunterCSV("6_Testdata_MHQuant_DefaultSampleInfo_RT-Areas-FWHM-NoOutlierSum.csv")
+  dd <- readRDS("6_Testdata_MHQuant_DefaultSampleInfo_RT-Areas-FWHM-NoOutlierSum.rds")
+  expect_identical(d, dd)
+})
+
+
+testthat::test_that("read_MassHunterCSV: 7_Testdata_MHQuant_DefaultSampleInfo_RT-Areas-FWHM-NoOutlierSum-noQuantMsgSum", {
+
+  d <- SLINGtools::read_MassHunterCSV("7_Testdata_MHQuant_DefaultSampleInfo_RT-Areas-FWHM-NoOutlierSum-noQuantMsgSum.csv")
+  dd <- readRDS("7_Testdata_MHQuant_DefaultSampleInfo_RT-Areas-FWHM-NoOutlierSum-noQuantMsgSum.rds")
+  expect_identical(d, dd)
+})
+
+testthat::test_that("read_MassHunterCSV: 8_Testdata_MHQuant_Corrupt_DefaultSampleInfo_RT-Areas-FWHM_OutlierQuantMsgSumDeleted", {
+
+  d <- SLINGtools::read_MassHunterCSV("8_Testdata_MHQuant_Corrupt_DefaultSampleInfo_RT-Areas-FWHM_OutlierQuantMsgSumDeleted.csv")
+  dd <- readRDS("8_Testdata_MHQuant_Corrupt_DefaultSampleInfo_RT-Areas-FWHM_OutlierQuantMsgSumDeleted.rds")
+  expect_identical(d, dd)
+})
+
+testthat::test_that("read_MassHunterCSV: 9_Testdata_MHQuant_DefaultSampleInfo_RT-Areas-FWHM_withQuantMethods_withQualifierMethResults", {
+
+  d <- SLINGtools::read_MassHunterCSV("9_Testdata_MHQuant_DefaultSampleInfo_RT-Areas-FWHM_withQuantMethods_withQualifierMethResults.csv")
+  dd <- readRDS("9_Testdata_MHQuant_DefaultSampleInfo_RT-Areas-FWHM_withQuantMethods_withQualifierMethResults.rds")
+  expect_identical(d, dd)
+})
+
+testthat::test_that("read_MassHunterCSV: 10_Testdata_MHQuant_DefaultSampleInfo_RT-Areas-FWHM-NoQuantMsgSum", {
+
+  d <- SLINGtools::read_MassHunterCSV("10_Testdata_MHQuant_DefaultSampleInfo_RT-Areas-FWHM-NoQuantMsgSum.csv")
+  dd <- readRDS("10_Testdata_MHQuant_DefaultSampleInfo_RT-Areas-FWHM-NoQuantMsgSum.rds")
+  expect_identical(d, dd)
+})
+
+testthat::test_that("read_MassHunterCSV: 11_Testdata_MHQuant_DefaultSampleInfo-noAcqDataTime_RT-Areas-FWHM", {
+
+  d <- SLINGtools::read_MassHunterCSV("11_Testdata_MHQuant_DefaultSampleInfo-noAcqDataTime_RT-Areas-FWHM.csv")
+  dd <- readRDS("11_Testdata_MHQuant_DefaultSampleInfo-noAcqDataTime_RT-Areas-FWHM.rds")
+  expect_identical(d, dd)
+})
+
+testthat::test_that("read_MassHunterCSV: 12_Testdata_MHQuant_DefaultSampleInfo_RT-Areas-FWHM-withQuantMsg.", {
+  expect_error(
+    SLINGtools::read_MassHunterCSV("12_Testdata_MHQuant_DefaultSampleInfo_RT-Areas-FWHM-withQuantMsg.csv"), "Quantitation Message")
+
+})
+
+testthat::test_that("read_MassHunterCSV: 13_Testdata_MHQuant_CompoundTable_DefaultSampleInfo_RT-Areas-FWHM.", {
+  expect_error(
+    SLINGtools::read_MassHunterCSV("13_Testdata_MHQuant_CompoundTable_DefaultSampleInfo_RT-Areas-FWHM.csv"),
+    regexp = "Compound table")
+
+})
+
+testthat::test_that("read_MassHunterCSV: 14_Testdata_MHQuant_Corrupt_DefaultSampleInfo_Area_RowAreaDeleted", {
+  expect_error(
+    SLINGtools::read_MassHunterCSV("14_Testdata_MHQuant_Corrupt_DefaultSampleInfo_Area_RowAreaDeleted.csv"),
+    regexp = "Unknown format")
+
+})
+
+testthat::test_that("read_MassHunterCSV: 15_Testdata_MHQuant_Corrupt_DefaultSampleInfo_RT-Areas-FWHM_ExtraTopLine", {
+  d <- SLINGtools::read_MassHunterCSV("15_Testdata_MHQuant_Corrupt_DefaultSampleInfo_RT-Areas-FWHM_ExtraTopLine.csv")
+  dd <- readRDS("15_Testdata_MHQuant_Corrupt_DefaultSampleInfo_RT-Areas-FWHM_ExtraTopLine.rds")
+  expect_identical(d, dd)
+
+})
+
+testthat::test_that("read_MassHunterCSV_wide: 3_Testdata_MHQuant_DefaultSampleInfo_DetailedResults-Area-flat.rds", {
+  d <- SLINGtools::read_MassHunterCSV_wide("3_Testdata_MHQuant_DefaultSampleInfo_DetailedResults.csv", field = "Area")
+  dd <- readRDS("3_Testdata_MHQuant_DefaultSampleInfo_DetailedResults-Area-flat.rds")
   expect_identical(d, dd)
 })
