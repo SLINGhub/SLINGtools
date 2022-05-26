@@ -27,15 +27,17 @@ read_MassHunterCSV <- function(file, silent = FALSE) {
   #   incProgress(1 / length(n_datafiles), detail = paste0("", basename(file)))
   #
   # Read Agilent MassHunter Quant Export file (CSV)
-  datWide <-
-    readr::read_csv(
-      file = file,
-      col_names = FALSE,
-      na = c("#N/A", "NULL"),
-      trim_ws = TRUE,
-      col_types = readr::cols(.default = "c"),
-      locale = readr::locale(encoding = 'ISO-8859-1'), num_threads = 4,progress = TRUE
-    )
+  suppressWarnings(
+    datWide <-
+      readr::read_csv(
+        file = file,
+        col_names = FALSE,
+        na = c("#N/A", "NULL"),
+        trim_ws = TRUE,
+        col_types = readr::cols(.default = "c"),
+        locale = readr::locale(encoding = 'ISO-8859-1'), num_threads = 4,progress = TRUE
+    ))
+  warnings_datWide = readr::problems(datWide)
 
   # Remove text that is not required and remove dot chars that interfere later with the conversion wide to long
   # ToDo: Convert to tidyverse functions
@@ -54,11 +56,11 @@ read_MassHunterCSV <- function(file, silent = FALSE) {
 
 
   datWide <- datWide |> dplyr::add_row(.after = 1)
-  datWide[1, ] <- tibble::tibble(A = datWide[1,] |> unlist() |> dplyr::na_if("")) |>  tidyr::fill(A) |> unlist() |> as.list()
+  datWide[1, ] <- tibble::tibble(A = datWide[1,] |> unlist() |> dplyr::na_if("")) |>  tidyr::fill(.data$A) |> unlist() |> as.list()
 
   datWide[1, ] <- replace(datWide[1,], stringr::str_detect(string = datWide[1,] , pattern = "AA"),"")
   datWide[2, ] <- replace(datWide[1,], !stringr::str_detect(string = datWide[1,] , pattern = "AA"),"")
-  datWide[1, ] <- tibble::tibble(A = datWide[1,] |> unlist() |> dplyr::na_if("")) |>  tidyr::fill(A) |> unlist() |> as.list()
+  datWide[1, ] <- tibble::tibble(A = datWide[1,] |> unlist() |> dplyr::na_if("")) |>  tidyr::fill(.data$A) |> unlist() |> as.list()
 
    # Concatenate rows
   datWide[1, ] <- paste(datWide[1, ], datWide[2, ], sep = " ") |> stringr::str_squish() |> as.list()
@@ -99,10 +101,10 @@ read_MassHunterCSV <- function(file, silent = FALSE) {
 
   datWide <- datWide %>% dplyr::rename(dplyr::any_of(new_colnames))
 
-  if("QuantitationMessage" %in% names(datWide)) stop("Field 'Quantitation Message' currently not supported: Please re-export your data in MH without this field.")
+  if("QuantitationMessage" %in% names(datWide))  stop("Field 'Quantitation Message' currently not supported: Please re-export your data in MH without this field.")
   if("NameCompound" %in% names(datWide)) stop("Compound table format is currently not supported. Please re-export your data in MH with compounds as columns.")
-
-  if(! "DataFileName" %in% names(datWide)) stop("Unknown format, or data file is corrupt. Please try re-export from MH.")
+  if(! "DataFileName" %in% names(datWide)) stop("Unknown format or corrupt data file. Please try re-export from MH.")
+  if (nrow(warnings_datWide)> 0) stop("Unknown format, or data file is corrupt. Please try re-export from MH.")
   # Remove ".Sample" from remaining sample description headers and remove known unused columns
   datWide <-
     datWide[, !(names(datWide) %in% c("NA\tSample", "Level\tSample", "Sample"))]
@@ -153,7 +155,7 @@ read_MassHunterCSV <- function(file, silent = FALSE) {
   new_colnames <- c(DataName = "SampleName", PrecursorMZ = "Precursor Ion", ProductMZ = "Product Ion",
                     CollisionEnergy = "Collision Energy", IonPolarity = "Ion Polarity")
 
-  datLong <- datLong %>% dplyr::rename(any_of(new_colnames))
+  datLong <- datLong %>% dplyr::rename(dplyr::any_of(new_colnames))
 
   if(!silent) {
     cat("Imported ", length(unique(datLong$DataFileName)), "samples with ", fill = FALSE)

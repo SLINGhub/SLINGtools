@@ -10,6 +10,8 @@
 #' @export
 #'
 #' @examples
+#' library(SLINGtools)
+#' cvlog(c(5,6,3,4,5, NA), na.rm = TRUE)
 #'
 cvlog <- function(x, na.rm){
   #sqrt(exp(1)^(sd(log(x, ...))^2)-1) *100

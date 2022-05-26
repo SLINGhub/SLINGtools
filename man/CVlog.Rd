@@ -18,5 +18,7 @@ numeric vector of length one. If x contains a zero, then NaN is returned. If x i
 Computes the coefficient of variation (CV) after log-transformation of the provided data
 }
 \examples{
+library(SLINGtools)
+cvlog(c(5,6,3,4,5, NA), na.rm = TRUE)
 
 }
