@@ -26,6 +26,7 @@ BugReports: https://github.com/SLINGhub/SLINGtools/issues
 Imports: 
     lubridate,
     magrittr,
+    remotes,
     rlang,
     stats,
     stringr,
