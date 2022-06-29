@@ -39,6 +39,8 @@ read_MassHunterCSV <- function(file, silent = FALSE) {
     ))
   warnings_datWide = readr::problems(datWide)
 
+
+
   # Remove text that is not required and remove dot chars that interfere later with the conversion wide to long
   # ToDo: Convert to tidyverse functions
   datWide[1, ] <-
@@ -123,7 +125,7 @@ read_MassHunterCSV <- function(file, silent = FALSE) {
   datWide <- datWide %>%
     dplyr::mutate(
       dplyr::across(.cols = dplyr::any_of(c("AcqTimeStamp")),
-                    .fns = lubridate::mdy_hm),
+                    .fns = \(x) lubridate::parse_date_time(x, c("mdy_HM", "dmy_HM", "ymd_HM", "ydm_HM", "mdy_HM %p", "dmy_HM %p", "ymd_HM %p", "ydm_HM %p"))),
       dplyr::across(.cols = dplyr::any_of(c("SampleName")),
                     .fns = stringr::str_squish)
     )
@@ -145,7 +147,7 @@ read_MassHunterCSV <- function(file, silent = FALSE) {
     dplyr::mutate(
       dplyr::across(.cols = dplyr::any_of(c("RT", "Area", "Height","FWHM","Width","SN","IntStart","IntEnd",
                                     "Symmetry","InjVolume", "Precursor Ion", "Product Ion", "Collision Energy")),
-                    .fns = as.numeric),
+                    .fns = \(x) as.numeric(stringr::str_replace(x, ",", "."))),
       dplyr::across(.cols = dplyr::any_of(c("MI")),
                     .fns = as.logical),
       dplyr::across(.cols = dplyr::any_of(c("Ion Polarity")),

@@ -109,3 +109,17 @@ testthat::test_that("read_MassHunterCSV_wide: 3_Testdata_MHQuant_DefaultSampleIn
   dd <- readRDS("3_Testdata_MHQuant_DefaultSampleInfo_DetailedResults-Area-flat.rds")
   expect_identical(d, dd)
 })
+
+testthat::test_that("read_MassHunterCSV: 17_Testdata_Lipidomics_GermanSystem", {
+  d <- SLINGtools::read_MassHunterCSV("17_Testdata_Lipidomics_GermanSystem.csv")
+  dd <- readRDS("17_Testdata_Lipidomics_GermanSystem.rds")
+  print(dd)
+  expect_identical(d, dd)
+})
+
+testthat::test_that("read_MassHunterCSV: 18_AMPM", {
+  d <- SLINGtools::read_MassHunterCSV("18_Testdata_MHQuant_DefaultSampleInfo_AreaOnly_AMPM.csv")
+  dd <- readRDS("18_Testdata_MHQuant_DefaultSampleInfo_AreaOnly_AMPM.rds")
+  print(dd)
+  expect_identical(d, dd)
+})
