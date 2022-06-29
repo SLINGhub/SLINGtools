@@ -51,33 +51,40 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">read_MassHunterCSV_wide</span><span class="op">(</span><span class="va">file</span>, <span class="va">field</span>, silent <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">read_MassHunterCSV_wide</span><span class="op">(</span><span class="va">file</span>, <span class="va">field</span>, silent <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>file</dt>
 <dd><p>File name and path of the MassHunter Quant CSV file</p></dd>
+
+
 <dt>field</dt>
 <dd><p>Peak parameter (e.g. Area, RT)</p></dd>
+
+
 <dt>silent</dt>
 <dd><p>Suppress messages</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A tibble in the long format</p>
+    
+
+<p>A tibble in the long format</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/SLINGhub/SLINGtools" class="external-link">SLINGtools</a></span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">data_file_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>,</span>
-<span class="r-in">  <span class="st">"Testdata_Lipidomics_MHQuant_Detailed.csv"</span>, package <span class="op">=</span> <span class="st">"SLINGtools"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">d_area</span> <span class="op">&lt;-</span> <span class="fu">read_MassHunterCSV_wide</span><span class="op">(</span><span class="va">data_file_path</span>, field <span class="op">=</span> <span class="st">"Area"</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/SLINGhub/SLINGtools" class="external-link">SLINGtools</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">data_file_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>,</span></span>
+<span class="r-in"><span>  <span class="st">"Testdata_Lipidomics_MHQuant_Detailed.csv"</span>, package <span class="op">=</span> <span class="st">"SLINGtools"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">d_area</span> <span class="op">&lt;-</span> <span class="fu">read_MassHunterCSV_wide</span><span class="op">(</span><span class="va">data_file_path</span>, field <span class="op">=</span> <span class="st">"Area"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Reading 'Testdata_Lipidomics_MHQuant_Detailed.csv' ... </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Imported  215 samples with 428 transitions </span>
-<span class="r-in"><span class="va">d_area</span></span>
+<span class="r-in"><span><span class="va">d_area</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 215 × 432</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    DataFileName  AcqTimeStamp        SampleType VialPosition `CE 14:0` `CE 15:0`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
@@ -98,8 +105,8 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   `CE 20:3` &lt;dbl&gt;, `CE 20:4` &lt;dbl&gt;, `CE 20:5` &lt;dbl&gt;, `CE 22:0` &lt;dbl&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   `CE 22:1` &lt;dbl&gt;, `CE 22:4` &lt;dbl&gt;, `CE 22:5` &lt;dbl&gt;, `CE 22:6` &lt;dbl&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   `CE 24:4` &lt;dbl&gt;, `Cer d18:0/16:0` &lt;dbl&gt;, `Cer d18:0/18:0` &lt;dbl&gt;, …</span></span>
-<span class="r-in"></span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
@@ -111,7 +118,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
     </footer></div>
