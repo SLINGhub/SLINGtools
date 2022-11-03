@@ -4,10 +4,10 @@
 \alias{read_MassHunterCSV}
 \title{Read and convert an Agilent MassHunter Quant CSV result file}
 \usage{
-read_MassHunterCSV(file, silent = FALSE)
+read_MassHunterCSV(filename, silent = FALSE)
 }
 \arguments{
-\item{file}{File path of MassHunter Quant CSV file}
+\item{filename}{File path of MassHunter Quant CSV file}
 
 \item{silent}{Suppress messages}
 }

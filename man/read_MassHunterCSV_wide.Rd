@@ -2,7 +2,7 @@
 % Please edit documentation in R/read_msdata.R
 \name{read_MassHunterCSV_wide}
 \alias{read_MassHunterCSV_wide}
-\title{Reads a defined peak parameter from a Agilent MassHunter Quant CSV result file into a flat wide table}
+\title{Reads a wide CSV file with Feature Intensities}
 \usage{
 read_MassHunterCSV_wide(file, field, silent = FALSE)
 }
@@ -17,7 +17,7 @@ read_MassHunterCSV_wide(file, field, silent = FALSE)
 A tibble in the long format
 }
 \description{
-Reads a defined peak parameter from a Agilent MassHunter Quant CSV result file into a flat wide table
+Reads a wide CSV file with Feature Intensities
 }
 \examples{
 library(SLINGtools)
