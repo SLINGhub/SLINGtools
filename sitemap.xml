@@ -25,15 +25,69 @@
     <loc>https://slinghub.github.io/SLINGtools/reference/CVlog.html</loc>
   </url>
   <url>
+    <loc>https://slinghub.github.io/SLINGtools/reference/MidarExperiment-class.html</loc>
+  </url>
+  <url>
+    <loc>https://slinghub.github.io/SLINGtools/reference/MidarExperiment.html</loc>
+  </url>
+  <url>
+    <loc>https://slinghub.github.io/SLINGtools/reference/calcQC-MidarExperiment-method.html</loc>
+  </url>
+  <url>
+    <loc>https://slinghub.github.io/SLINGtools/reference/calcQC.html</loc>
+  </url>
+  <url>
+    <loc>https://slinghub.github.io/SLINGtools/reference/exportWideCSV-MidarExperiment-method.html</loc>
+  </url>
+  <url>
+    <loc>https://slinghub.github.io/SLINGtools/reference/exportWideCSV.html</loc>
+  </url>
+  <url>
+    <loc>https://slinghub.github.io/SLINGtools/reference/import_MSOrganizerXLM.html</loc>
+  </url>
+  <url>
     <loc>https://slinghub.github.io/SLINGtools/reference/index.html</loc>
   </url>
   <url>
+    <loc>https://slinghub.github.io/SLINGtools/reference/loadMSOrganizerXLM-MidarExperiment-method.html</loc>
+  </url>
+  <url>
+    <loc>https://slinghub.github.io/SLINGtools/reference/loadMSOrganizerXLM.html</loc>
+  </url>
+  <url>
+    <loc>https://slinghub.github.io/SLINGtools/reference/loadMasshunterCSV-MidarExperiment-method.html</loc>
+  </url>
+  <url>
+    <loc>https://slinghub.github.io/SLINGtools/reference/loadMasshunterCSV.html</loc>
+  </url>
+  <url>
+    <loc>https://slinghub.github.io/SLINGtools/reference/normalizeByISTD-MidarExperiment-method.html</loc>
+  </url>
+  <url>
+    <loc>https://slinghub.github.io/SLINGtools/reference/normalizeByISTD.html</loc>
+  </url>
+  <url>
     <loc>https://slinghub.github.io/SLINGtools/reference/pipe.html</loc>
+  </url>
+  <url>
+    <loc>https://slinghub.github.io/SLINGtools/reference/quantitateByISTD-MidarExperiment-method.html</loc>
+  </url>
+  <url>
+    <loc>https://slinghub.github.io/SLINGtools/reference/quantitateByISTD.html</loc>
   </url>
   <url>
     <loc>https://slinghub.github.io/SLINGtools/reference/read_MassHunterCSV.html</loc>
   </url>
   <url>
     <loc>https://slinghub.github.io/SLINGtools/reference/read_MassHunterCSV_wide.html</loc>
+  </url>
+  <url>
+    <loc>https://slinghub.github.io/SLINGtools/reference/read_plainCSV_long.html</loc>
+  </url>
+  <url>
+    <loc>https://slinghub.github.io/SLINGtools/reference/saveQCinfo-MidarExperiment-method.html</loc>
+  </url>
+  <url>
+    <loc>https://slinghub.github.io/SLINGtools/reference/saveQCinfo.html</loc>
   </url>
 </urlset>
