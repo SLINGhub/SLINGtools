@@ -161,11 +161,11 @@ setMethod("calcQC", signature = "MidarExperiment", function(data) {
 
       Int_CV_TQC = sd(.data$Intensity[.data$QC_TYPE == "TQC"], na.rm = TRUE)/mean(.data$Intensity[.data$QC_TYPE == "TQC"], na.rm = TRUE) * 100,
       Int_CV_BQC = sd(.data$Intensity[.data$QC_TYPE == "BQC"], na.rm = TRUE)/mean(.data$Intensity[.data$QC_TYPE == "BQC"], na.rm = TRUE) * 100,
-      Int_CV_SPL = sd(.data$Intensity[vQC_TYPE == "SPL"], na.rm = TRUE)/mean(.data$Intensity[.data$QC_TYPE == "SPL"], na.rm = TRUE) * 100,
+      Int_CV_SPL = sd(.data$Intensity[.data$QC_TYPE == "SPL"], na.rm = TRUE)/mean(.data$Intensity[.data$QC_TYPE == "SPL"], na.rm = TRUE) * 100,
 
-      normInt_CV_TQC = sd(normIntensity[.data$QC_TYPE == "TQC"], na.rm = TRUE)/mean(normIntensity[.data$QC_TYPE == "TQC"], na.rm = TRUE) * 100,
-      normInt_CV_BQC = sd(normIntensity[.data$QC_TYPE == "BQC"], na.rm = TRUE)/mean(normIntensity[.data$QC_TYPE == "BQC"], na.rm = TRUE) * 100,
-      normInt_CV_SPL = sd(normIntensity[.data$QC_TYPE == "SPL"], na.rm = TRUE)/mean(normIntensity[.data$QC_TYPE == "SPL"], na.rm = TRUE) * 100,
+      normInt_CV_TQC = sd(.data$normIntensity[.data$QC_TYPE == "TQC"], na.rm = TRUE)/mean(.data$normIntensity[.data$QC_TYPE == "TQC"], na.rm = TRUE) * 100,
+      normInt_CV_BQC = sd(.data$normIntensity[.data$QC_TYPE == "BQC"], na.rm = TRUE)/mean(.data$normIntensity[.data$QC_TYPE == "BQC"], na.rm = TRUE) * 100,
+      normInt_CV_SPL = sd(.data$normIntensity[.data$QC_TYPE == "SPL"], na.rm = TRUE)/mean(.data$normIntensity[.data$QC_TYPE == "SPL"], na.rm = TRUE) * 100,
     )
 
   model <- as.formula("Intensity ~ RELATIVE_SAMPLE_AMOUNT")
@@ -180,8 +180,8 @@ setMethod("calcQC", signature = "MidarExperiment", function(data) {
         models = purrr::map(data, function(x) lm(model, data = x, na.action = na.exclude)),
         #mandel = map(data, \(x) DCVtestkit::calculate_mandel(x, "RELATIVE_SAMPLE_AMOUNT", "Intensity")),
         #ppa = map(data, \(x) DCVtestkit::calculate_pra_linear(x, "RELATIVE_SAMPLE_AMOUNT", "Intensity")),
-        tidy = purrr::map(models, function(x) broom::glance(x))) %>%
-    tidyr::unnest(c(tidy)) %>%
+        tidy = purrr::map(.data$models, function(x) broom::glance(x))) %>%
+    tidyr::unnest(c(.data$tidy)) %>%
     dplyr::select("FEATURE_NAME", "RQC_SERIES_ID", R2 = "r.squared", Y0 = "sigma") %>%
     tidyr::pivot_wider(names_from = "RQC_SERIES_ID", values_from = c("R2", "Y0"), names_prefix = "RQC_")
 
@@ -214,9 +214,77 @@ setGeneric("saveQCinfo", function(data, filename) standardGeneric("saveQCinfo"))
 #'
 setMethod("saveQCinfo", signature = "MidarExperiment", function(data, filename) {
 
-  if (nrow(data@d_QC)== 0) stop("QC info has not yet been calculated. Please apply the function 'calcQC' first.")
+  if (nrow(data@d_QC)== 0) stop("QC info has not yet been calculated. Please apply 'calcQC' first.")
 
   readr::write_csv(data@d_QC, file = filename, num_threads = 4, col_names = TRUE)
   invisible(data@d_QC)
 
 })
+
+#' getDatasetFilteredQC generic
+#'
+#' @param data MidarExperiment object
+#' @param Intensity_BQC_min Intensity_BQC_min
+#' @param CV_BQC_max = CV_BQC_max
+#' @param Intensity_TQC_min = Intensity_TQC_min
+#' @param CV_TQC_max = CV_TQC_max
+#' @param SB_RATIO_min = SB_RATIO_min
+#' @param R2_min = R2_min
+#' @param RQC_CURVE = RQC_CURVE
+#'
+setGeneric("getDatasetFilteredQC", function(data, Intensity_BQC_min = NA, CV_BQC_max = NA, Intensity_TQC_min = NA, CV_TQC_max = NA, SB_RATIO_min = NA, R2_min = NA, RQC_CURVE = NA) standardGeneric("getDatasetFilteredQC"))
+
+#' Save the QC table to a CSV file
+#'
+#' @param data MidarExperiment object
+#' @param Intensity_BQC_min Intensity_BQC_min
+#' @param CV_BQC_max = CV_BQC_max
+#' @param Intensity_TQC_min = Intensity_TQC_min
+#' @param CV_TQC_max = CV_TQC_max
+#' @param SB_RATIO_min = SB_RATIO_min
+#' @param R2_min = R2_min
+#' @param RQC_CURVE = RQC_CURVE
+#'
+#' @export
+#'
+#' @importFrom glue glue
+#' @importFrom readr write_csv
+#' @importFrom tidyr pivot_wider
+#' @importFrom rlang .data
+#' @importFrom stats as.formula lm median na.exclude quantile sd
+#'
+#'
+setMethod("getDatasetFilteredQC",
+          signature = "MidarExperiment",
+          function(data,
+                   Intensity_BQC_min = NA,
+                   CV_BQC_max = NA,
+                   Intensity_TQC_min = NA,
+                   CV_TQC_max = NA,
+                   SB_RATIO_min = NA,
+                   R2_min = NA,
+                   RQC_CURVE = 1
+                   ){
+
+  if (nrow(data@d_QC)== 0) stop("QC info has not yet been calculated. Please apply 'calcQC' first.")
+
+  if(is.na(Intensity_BQC_min)) Intensity_BQC_min <- -Inf
+  if(is.na(CV_BQC_max)) CV_BQC_max <- Inf
+  if(is.na(Intensity_TQC_min)) Intensity_TQC_min <- -Inf
+  if(is.na(CV_TQC_max)) CV_TQC_max <- Inf
+  if(is.na(SB_RATIO_min)) SB_RATIO_min <- 0
+  if(is.na(R2_min)) R2_min <- 0
+
+  d_filt <-  data@d_QC %>% filter(.data$Int_med_BQC > Intensity_BQC_min,
+                                  .data$Int_med_TQC > Intensity_TQC_min,
+                                  .data$normInt_CV_BQC < CV_BQC_max,
+                                  .data$normInt_CV_TQC < CV_TQC_max,
+                                  .data$SB_Ratio_Q10 > SB_RATIO_min)
+
+  print(glue::glue("{nrow(d_filt)} of {nrow(data@d_QC)} features passed QC filtering."))
+  data@dataset %>% dplyr::right_join(d_filt|> dplyr::select("FEATURE_NAME"), by = "FEATURE_NAME")
+
+})
+
+
+
