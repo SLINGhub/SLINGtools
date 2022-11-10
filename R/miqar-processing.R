@@ -1,3 +1,20 @@
+#' get_conc_unit
+#'
+#' @param sample_amount_unit MidarExperiment object
+#' @return string with concentration unit
+#' @noRd
+
+get_conc_unit <- function(sample_amount_unit){
+  if (length(unique(sample_amount_unit)) > 1)
+    conc_unit <- "pmol/sample amount unit (multiple units)"
+  else if (sample_amount_unit[1] == "uL" | sample_amount_unit[1] == "\U003BCL")
+    conc_unit <- "\U003BCmol/L"
+  else
+    conc_unit <- glue::glue("pmol/{sample_amount_unit}")
+  conc_unit
+}
+
+
 #' normalizeByISTD
 #'
 #' @param data MidarExperiment object
@@ -69,20 +86,15 @@ setMethod("quantitateByISTD", signature = "MidarExperiment", function(data) {
   n_features <- length(unique(data@annot_features$FEATURE_NAME))
   n_ISTDs <- length(unique(data@annot_features$NORM_ISTD_FEATURE_NAME))
 
-  #TODO: improve for multiple units (e.g. cells and NIST plasma)
-  amount_unit <-  data@annot_analyses$SAMPLE_AMOUNT_UNIT
-  if (length(unique(amount_unit)) > 1)
-    conc_unit <- "pmol/sample amount unit (multiple units)"
-  else if (amount_unit[1] == "uL" | amount_unit[1] == "\U003BCL")
-    conc_unit <- "\U003BCmol/L"
-  else
-    conc_unit <- glue::glue("pmol/{data@annot_analyses$SAMPLE_AMOUNT_UNIT}")
+  conc_unit <- get_conc_unit(data@annot_analyses$SAMPLE_AMOUNT_UNIT)
 
   print(glue::glue("{n_features} compounds quantitated in {nrow(data@annot_analyses)} samples using {n_ISTDs} spiked ISTDs.
                    Concentration unit: [{conc_unit}]"))
 
   data
 })
+
+
 
 #' exportWideCSV generic
 #'
@@ -157,7 +169,7 @@ setMethod("calcQC", signature = "MidarExperiment", function(data) {
       Int_med_NIST = median(.data$Intensity[.data$QC_TYPE == "NIST"], na.rm = TRUE),
       Int_med_LTR = median(.data$Intensity[.data$QC_TYPE == "LTR"], na.rm = TRUE),
 
-      SB_Ratio_Q10 = quantile(.data$Intensity[.data$QC_TYPE == "SPL"], probs  = 0.1, na.rm = TRUE)/median(.data$Intensity[.data$QC_TYPE == "PBLK"], na.rm = TRUE),
+      SB_Ratio_Q10 = quantile(.data$Intensity[.data$QC_TYPE == "SPL"], probs  = 0.1, na.rm = TRUE, names = FALSE)/median(.data$Intensity[.data$QC_TYPE == "PBLK"], na.rm = TRUE, names = FALSE),
 
       Int_CV_TQC = sd(.data$Intensity[.data$QC_TYPE == "TQC"], na.rm = TRUE)/mean(.data$Intensity[.data$QC_TYPE == "TQC"], na.rm = TRUE) * 100,
       Int_CV_BQC = sd(.data$Intensity[.data$QC_TYPE == "BQC"], na.rm = TRUE)/mean(.data$Intensity[.data$QC_TYPE == "BQC"], na.rm = TRUE) * 100,
@@ -181,7 +193,7 @@ setMethod("calcQC", signature = "MidarExperiment", function(data) {
         #mandel = map(data, \(x) DCVtestkit::calculate_mandel(x, "RELATIVE_SAMPLE_AMOUNT", "Intensity")),
         #ppa = map(data, \(x) DCVtestkit::calculate_pra_linear(x, "RELATIVE_SAMPLE_AMOUNT", "Intensity")),
         tidy = purrr::map(.data$models, function(x) broom::glance(x))) %>%
-    tidyr::unnest(c(.data$tidy)) %>%
+    tidyr::unnest(c("tidy")) %>%
     dplyr::select("FEATURE_NAME", "RQC_SERIES_ID", R2 = "r.squared", Y0 = "sigma") %>%
     tidyr::pivot_wider(names_from = "RQC_SERIES_ID", values_from = c("R2", "Y0"), names_prefix = "RQC_")
 

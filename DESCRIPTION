@@ -23,6 +23,7 @@ Imports:
     lubridate,
     magrittr,
     methods,
+    openxlsx,
     purrr,
     readr,
     readxl,

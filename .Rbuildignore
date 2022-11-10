@@ -6,4 +6,4 @@
 ^docs$
 ^pkgdown$
 ^\.github$
-.updateTests.R
+^\.testing$

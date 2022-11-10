@@ -1,0 +1,23 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+devtools::load_all()
+```
+```{r}
+mexp <- SLINGtools::MidarExperiment()
+mexp <- SLINGtools::loadMasshunterCSV(mexp, "Test_MH.csv")
+mexp <- SLINGtools::loadMSOrganizerXLM(mexp, "MSTemplate_Creator_forTest.xlsm")
+
+mexp <- SLINGtools::normalizeByISTD(mexp)
+mexp <- SLINGtools::quantitateByISTD(mexp)
+mexp <- SLINGtools::calcQC(mexp)
+
+```
+
+```{r}
+SLINGtools::writeReportXLS(data = mexp, filename = here(".testing/MyReport"))
+```
