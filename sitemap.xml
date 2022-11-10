@@ -96,4 +96,10 @@
   <url>
     <loc>https://slinghub.github.io/SLINGtools/reference/saveQCinfo.html</loc>
   </url>
+  <url>
+    <loc>https://slinghub.github.io/SLINGtools/reference/writeReportXLS-MidarExperiment-method.html</loc>
+  </url>
+  <url>
+    <loc>https://slinghub.github.io/SLINGtools/reference/writeReportXLS.html</loc>
+  </url>
 </urlset>
