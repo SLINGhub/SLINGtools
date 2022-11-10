@@ -17,6 +17,8 @@ Provides also functions to validate data integrity, to perfom normalization and 
 
 \item{\code{dataset}}{Processed analysis data. Required fields:}
 
+\item{\code{dataset_QC_filtered}}{Processed analysis data. Required fields:}
+
 \item{\code{annot_analyses}}{Annotation of analyses/runs}
 
 \item{\code{annot_features}}{Annotation of measured features.}

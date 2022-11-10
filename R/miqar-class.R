@@ -125,6 +125,7 @@ setOldClass(c("tbl_df", "tbl", "data.frame"))
 #'
 #' @slot dataset_orig Original imported analysis data. Required fields:
 #' @slot dataset Processed analysis data. Required fields:
+#' @slot dataset_QC_filtered Processed analysis data. Required fields:
 #' @slot annot_analyses Annotation of analyses/runs
 #' @slot annot_features Annotation of measured features.
 #' @slot annot_istd Annotation of Internal Standard concentrations.
@@ -143,6 +144,7 @@ setClass("MidarExperiment",
          slots = c(
            dataset_orig = "tbl_df",
            dataset = "tbl_df",
+           dataset_QC_filtered = "tbl_df",
            annot_analyses = "tbl_df",
            annot_features = "tbl_df",
            annot_istd = "tbl_df",
@@ -155,6 +157,7 @@ setClass("MidarExperiment",
          prototype = list(
            dataset_orig = pkg.env$dataset_templates$annot_analyses_template,
            dataset = pkg.env$dataset_templates$annot_analyses_template,
+           dataset_QC_filtered = pkg.env$dataset_templates$annot_analyses_template,
            annot_analyses = pkg.env$dataset_templates$annot_analyses_template,
            annot_features = pkg.env$dataset_templates$annot_features_template,
            annot_istd = pkg.env$dataset_templates$annot_istd_template,

@@ -294,8 +294,8 @@ setMethod("getDatasetFilteredQC",
                                   .data$SB_Ratio_Q10 > SB_RATIO_min)
 
   print(glue::glue("{nrow(d_filt)} of {nrow(data@d_QC)} features passed QC filtering."))
-  data@dataset %>% dplyr::right_join(d_filt|> dplyr::select("FEATURE_NAME"), by = "FEATURE_NAME")
-
+  data@dataset_QC_filtered <- data@dataset %>% dplyr::right_join(d_filt|> dplyr::select("FEATURE_NAME"), by = "FEATURE_NAME")
+  data
 })
 
 

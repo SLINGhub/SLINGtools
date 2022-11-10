@@ -28,6 +28,11 @@ setMethod("writeReportXLS", signature = "MidarExperiment", function(data, filena
     dplyr::select("ANALYSIS_ID", "QC_TYPE", "AcqTimeStamp", "FEATURE_NAME", "Concentration") %>%
     tidyr::pivot_wider(names_from = "FEATURE_NAME", values_from = "Concentration")
 
+  d_conc_wide_QC <- data@dataset_QC_filtered %>%
+    dplyr::filter(.data$QC_TYPE %in% c("SPL", "TQC", "BQC", "NIST", "LTR")) %>%
+    dplyr::select("ANALYSIS_ID", "QC_TYPE", "AcqTimeStamp", "FEATURE_NAME", "Concentration") %>%
+    tidyr::pivot_wider(names_from = "FEATURE_NAME", values_from = "Concentration")
+
   d_info <- tibble::tribble(
     ~Info, ~Value,
     "Date Report", lubridate::now(),
@@ -37,7 +42,9 @@ setMethod("writeReportXLS", signature = "MidarExperiment", function(data, filena
     "Concentration Unit", get_conc_unit(data@annot_analyses$SAMPLE_AMOUNT_UNIT))
 
 
- table_list <- list("Conc" = d_conc_wide,
+ table_list <- list(
+            "Conc_All" = d_conc_wide,
+            "Conc_QCfilt" = d_conc_wide_QC,
             "QC" = data@d_QC,
             "Info" = d_info,
             "SampleMetadata" = data@annot_analyses,

@@ -8,13 +8,17 @@ output: html_notebook
 devtools::load_all()
 ```
 ```{r}
-mexp <- SLINGtools::MidarExperiment()
-mexp <- SLINGtools::loadMasshunterCSV(mexp, "Test_MH.csv")
-mexp <- SLINGtools::loadMSOrganizerXLM(mexp, "MSTemplate_Creator_forTest.xlsm")
+mexp <- MidarExperiment()
+mexp <- mexp |> 
+  loadMasshunterCSV(, "Test_MH.csv") |> 
+  loadMSOrganizerXLM(mexp, "MSTemplate_Creator_forTest.xlsm")
 
-mexp <- SLINGtools::normalizeByISTD(mexp)
-mexp <- SLINGtools::quantitateByISTD(mexp)
-mexp <- SLINGtools::calcQC(mexp)
+mexp <- mexp |> 
+  normalizeByISTD(mexp) |> 
+  quantitateByISTD(mexp) |> 
+  calcQC(mexp)
+
+mexp <- mexp |> SLIN
 
 ```
 

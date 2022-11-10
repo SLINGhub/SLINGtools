@@ -1766,11 +1766,11 @@ display: none;
 <pre class="r"><code>mexp &lt;- SLINGtools::MidarExperiment()
 mexp &lt;- SLINGtools::loadMasshunterCSV(mexp, &quot;Test_MH.csv&quot;)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiUmVhZGluZyBbVGVzdF9NSC5jc3ZdIC4uLlxuXG5pbmRleGluZyBUZXN0X01ILmNzdiBbPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS1dIDIuMTVHQi9zLCBldGE6ICAwc1xuaW5kZXhpbmcgVGVzdF9NSC5jc3YgWz09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PV0gODQzLjU3TUIvcywgZXRhOiAgMHNcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbkltcG9ydGVkIDIxNSBzYW1wbGVzIHdpdGggNDI4IHRyYW5zaXRpb25zLiBcbiJ9 -->
+<!-- rnb-output-begin eyJkYXRhIjoiUmVhZGluZyBbVGVzdF9NSC5jc3ZdIC4uLlxuXG5pbmRleGluZyBUZXN0X01ILmNzdiBbPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS1dIDIuMTVHQi9zLCBldGE6ICAwc1xuaW5kZXhpbmcgVGVzdF9NSC5jc3YgWz09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PV0gODA0Ljk3TUIvcywgZXRhOiAgMHNcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbkltcG9ydGVkIDIxNSBzYW1wbGVzIHdpdGggNDI4IHRyYW5zaXRpb25zLiBcbiJ9 -->
 <pre><code>Reading [Test_MH.csv] ...
 
-indexing Test_MH.csv [=====================================================================--------------------------------------] 2.15GB/s, eta:  0s
-indexing Test_MH.csv [=========================================================================================================] 843.57MB/s, eta:  0s
+indexing Test_MH.csv [====================================================================---------------------------------------] 2.15GB/s, eta:  0s
+indexing Test_MH.csv [=========================================================================================================] 804.97MB/s, eta:  0s
                                                                                                                                                                                         
 Imported 215 samples with 428 transitions. </code></pre>
 <!-- rnb-output-end -->
@@ -1800,20 +1800,9 @@ Concentration unit: [μmol/L]</code></pre>
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuU0xJTkd0b29sczo6d3JpdGVSZXBvcnRYTFMoZGF0YSA9IG1leHAsIGZpbGVuYW1lID0gaGVyZShcIi50ZXN0aW5nL015UmVwb3J0XCIpKVxuYGBgIn0= -->
 <pre class="r"><code>SLINGtools::writeReportXLS(data = mexp, filename = here(&quot;.testing/MyReport&quot;))</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogTkFzIGludHJvZHVjZWQgYnkgY29lcmNpb25XYXJuaW5nOiBOQXMgaW50cm9kdWNlZCBieSBjb2VyY2lvbldhcm5pbmc6IE5BcyBpbnRyb2R1Y2VkIGJ5IGNvZXJjaW9uV2FybmluZzogTkFzIGludHJvZHVjZWQgYnkgY29lcmNpb25XYXJuaW5nOiBOQXMgaW50cm9kdWNlZCBieSBjb2VyY2lvbldhcm5pbmc6IE5BcyBpbnRyb2R1Y2VkIGJ5IGNvZXJjaW9uXG4ifQ== -->
-<pre><code>Warning: NAs introduced by coercionWarning: NAs introduced by coercionWarning: NAs introduced by coercionWarning: NAs introduced by coercionWarning: NAs introduced by coercionWarning: NAs introduced by coercion</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3IgaW4gYGRwbHlyOjpzZWxlY3QoKWA6XG4hIENhbGxpbmcgdmFyKHgpIG9uIGEgZmFjdG9yIHggaXMgZGVmdW5jdC5cbiAgVXNlIHNvbWV0aGluZyBsaWtlICdhbGwoZHVwbGljYXRlZCh4KVstMUxdKScgdG8gdGVzdCBmb3IgYSBjb25zdGFudCB2ZWN0b3IuXG5CYWNrdHJhY2U6XG4gMS4gU0xJTkd0b29sczo6d3JpdGVSZXBvcnRYTFMoZGF0YSA9IG1leHAsIGZpbGVuYW1lID0gaGVyZShcIi50ZXN0aW5nL015UmVwb3J0XCIpKVxuIDYuIGRwbHlyOjo6c2VsZWN0LmRhdGEuZnJhbWUoLi4uKVxuIn0= -->
-<pre><code>Error in `dplyr::select()`:
-! Calling var(x) on a factor x is defunct.
-  Use something like &#39;all(duplicated(x)[-1L])&#39; to test for a constant vector.
-Backtrace:
- 1. SLINGtools::writeReportXLS(data = mexp, filename = here(&quot;.testing/MyReport&quot;))
- 6. dplyr:::select.data.frame(...)</code></pre>
-<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiUiBOb3RlYm9vayIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKCmBgYHtyfQpkZXZ0b29sczo6bG9hZF9hbGwoKQpgYGAKYGBge3J9Cm1leHAgPC0gU0xJTkd0b29sczo6TWlkYXJFeHBlcmltZW50KCkKbWV4cCA8LSBTTElOR3Rvb2xzOjpsb2FkTWFzc2h1bnRlckNTVihtZXhwLCAiVGVzdF9NSC5jc3YiKQptZXhwIDwtIFNMSU5HdG9vbHM6OmxvYWRNU09yZ2FuaXplclhMTShtZXhwLCAiTVNUZW1wbGF0ZV9DcmVhdG9yX2ZvclRlc3QueGxzbSIpCgptZXhwIDwtIFNMSU5HdG9vbHM6Om5vcm1hbGl6ZUJ5SVNURChtZXhwKQptZXhwIDwtIFNMSU5HdG9vbHM6OnF1YW50aXRhdGVCeUlTVEQobWV4cCkKbWV4cCA8LSBTTElOR3Rvb2xzOjpjYWxjUUMobWV4cCkKCmBgYAoKYGBge3J9ClNMSU5HdG9vbHM6OndyaXRlUmVwb3J0WExTKGRhdGEgPSBtZXhwLCBmaWxlbmFtZSA9IGhlcmUoIi50ZXN0aW5nL015UmVwb3J0IikpCmBgYAo=</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiUiBOb3RlYm9vayIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKCmBgYHtyfQpkZXZ0b29sczo6bG9hZF9hbGwoKQpgYGAKYGBge3J9Cm1leHAgPC0gTWlkYXJFeHBlcmltZW50KCkKbWV4cCA8LSBtZXhwIHw+IAogIGxvYWRNYXNzaHVudGVyQ1NWKCwgIlRlc3RfTUguY3N2IikgfD4gCiAgbG9hZE1TT3JnYW5pemVyWExNKG1leHAsICJNU1RlbXBsYXRlX0NyZWF0b3JfZm9yVGVzdC54bHNtIikKCm1leHAgPC0gbWV4cCB8PiAKICBub3JtYWxpemVCeUlTVEQobWV4cCkgfD4gCiAgcXVhbnRpdGF0ZUJ5SVNURChtZXhwKSB8PiAKICBjYWxjUUMobWV4cCkKCm1leHAgPC0gbWV4cCB8PiBTTElOCgpgYGAKCmBgYHtyfQpTTElOR3Rvb2xzOjp3cml0ZVJlcG9ydFhMUyhkYXRhID0gbWV4cCwgZmlsZW5hbWUgPSBoZXJlKCIudGVzdGluZy9NeVJlcG9ydCIpKQpgYGAK</div>
 
 
 
