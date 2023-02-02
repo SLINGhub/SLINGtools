@@ -1,0 +1,37 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+devtools::load_all()
+library(SLINGtools)
+```
+
+```{r}
+mexp <- MidarExperiment()
+mexp <- mexp |> 
+  loadMasshunterCSV("Test_MH.csv") |> 
+  loadMSOrganizerXLM("MSTemplate_Creator_forTest.xlsm")
+
+mexp <- mexp |> 
+  normalizeByISTD() |> 
+  quantitateByISTD() |> 
+  calcQC()
+
+mexp <- mexp |> getDatasetFilteredQC(
+  Intensity_BQC_min = 500,
+  CV_BQC_max = 25, 
+  SB_RATIO_min = 5,
+  R2_min = 0.8,
+  RQC_CURVE = "1" 
+  )
+
+SLINGtools::writeReportXLS(mexp, here("D:/my_report.xlsx"))
+
+```
+
+```{r}
+SLINGtools::writeReportXLS(data = mexp, filename = here(".testing/MyReport"))
+```

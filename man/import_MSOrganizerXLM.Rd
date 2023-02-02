@@ -17,13 +17,3 @@ A list of tibbles with different metadata
 \description{
 Imports metadata provided by an MSOrganizer EXCEL template
 }
-\examples{
-library(SLINGtools)
-
-data_file_path <- system.file("extdata",
-  "Testdata_Lipidomics_MHQuant_Detailed.csv", package = "SLINGtools")
-d <- read_MassHunterCSV(data_file_path)
-d
-
-
-}

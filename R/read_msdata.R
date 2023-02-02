@@ -11,15 +11,7 @@
 #' @importFrom glue glue
 #' @importFrom tidyselect vars_select_helpers
 #'
-#' @examples
-#' library(SLINGtools)
-#'
-#' data_file_path <- system.file("extdata",
-#'   "Testdata_Lipidomics_MHQuant_Detailed.csv", package = "SLINGtools")
-#' d <- read_MassHunterCSV(data_file_path)
-#' d
-#'
-#'
+
 read_MassHunterCSV <- function(filename, silent = FALSE) {
 
   if(!silent) print(glue::glue("Reading [{basename(filename)}] ..."))
@@ -74,7 +66,7 @@ read_MassHunterCSV <- function(filename, silent = FALSE) {
 
 
   # Remove columns with no column names, as they are undefined (seems to be only Outlier Summary and Quantitation Message Summary)
-  datWide <- datWide |> dplyr::select(-where(~ .x[2] == ""))
+  datWide <- datWide |> dplyr::select(-tidyselect::where(~ .x[2] == ""))
 
   # Concatenate rows containing parameters + transitions to the form parameter.sample and parameter.transition headers. This will later be converted with reshape()
   colnames(datWide) <- paste(datWide[2, ], datWide[1, ], sep = "\t")
@@ -155,12 +147,13 @@ read_MassHunterCSV <- function(filename, silent = FALSE) {
                     .fns = as.factor)
     )
 
-  new_colnames <- c(DataName = "SampleName", PrecursorMZ = "Precursor Ion", ProductMZ = "Product Ion",
+  new_colnames <- c(DataName = "SampleName", PRECURSOR_MZ = "Precursor Ion", PRODUCT_MZ = "Product Ion",
                     CollisionEnergy = "Collision Energy", IonPolarity = "Ion Polarity")
 
   datLong <- datLong %>%
     dplyr::rename(dplyr::any_of(new_colnames)) %>%
-    dplyr::mutate(ANALYSIS_ID = stringr::str_replace(.data$DataFileName, "\\.d", ""), .before = "DataName")
+    dplyr::mutate(ANALYSIS_ID = stringr::str_replace(.data$DataFileName, "\\.d", ""), .before = "DataName") %>%
+    dplyr::mutate(dplyr::across(tidyselect::where(is.character), stringr::str_squish))
 
   if(!silent) {
     print(glue::glue("Imported {length(unique(datLong$DataFileName))} samples with {length(unique(datLong$FEATURE_NAME))} transitions. \n"))
@@ -223,21 +216,10 @@ read_MassHunterCSV_wide <- function(file, field, silent = FALSE) {
 #' @return A tibble in the long format
 #' @export
 #'
-#' @importFrom stats na.omit setNames
-#' @importFrom utils tail
-#' @importFrom tidyselect vars_select_helpers
-
-#'
-#' @examples
-#' library(SLINGtools)
-#'
-#' data_file_path <- system.file("extdata",
-#'   "Testdata_Lipidomics_MHQuant_Detailed.csv", package = "SLINGtools")
-#' d_area <- read_MassHunterCSV_wide(data_file_path, field = "Area")
-#' d_area
 #'
 #'
-read_plainCSV_long <- function(file, field, silent = FALSE) {
+#'
+read_long_table_csv <- function(file, field, silent = FALSE) {
 
   sample_def_cols = c(
     "DataFileName",
@@ -261,5 +243,154 @@ read_plainCSV_long <- function(file, field, silent = FALSE) {
 
   d
 }
+
+
+#' Reads a wide CSV or XLSX sheet with Feature Values
+#'
+#' @param data MidarExperiment()
+#' @param file File name and path of a plain wide-format CSV or XLS file
+#' @param field Peak parameter (e.g. Area, RT)
+#' @param sheet Sheet name
+#' @param silent Suppress messages
+#'
+#' @return A tibble in the long format
+#' @export
+#'
+read_table_wide <- function(data, file, field, sheet = "", silent = FALSE) {
+
+  if (!field %in% c("Intensity", "normIntensity", "Concentration", "RT", "FWHM")) stop("Field can only be one of: Intensity, normIntensity, Concentration or RT")
+
+  var_field <- ensym(field)
+
+  ext <- fs::path_ext(file)
+  if(ext == "csv")
+    d <- readr::read_csv(file, col_names = TRUE, trim_ws = TRUE, progress = TRUE, na = c("n/a", "N/A"))
+  else if(ext == "xls" | ext == "xlsx"){
+    if(sheet == "") stop("Please define sheet name via the `sheet` parameter")
+    d <- readxl::read_excel(path = file, sheet = sheet, trim_ws = TRUE, progress = TRUE, na = c("n/a", "N/A"))
+  }
+  else
+    stop("Invalid file format. Only CSV, XLS and XLSX supported.")
+
+  d <- d |> dplyr::mutate(RUN_ID = row_number(),.before = 1)
+
+  d <- d |> tidyr::pivot_longer(cols = -1:-2, names_to = "FEATURE_NAME" , values_to = field) %>%
+    dplyr::rename(ANALYSIS_ID = 2) %>%
+    mutate({{field}} := as.numeric(!!var_field))
+
+  data@dataset_orig <- d
+  data
+
+}
+
+
+
+
+#' Read and convert an Agilent MassHunter Quant CSV result file
+#'
+#' @param filename File path of MassHunter Quant CSV file
+#' @param silent Suppress messages
+#'
+#' @return A tibble in the long format
+#' @export
+#'
+#' @importFrom stats na.omit setNames
+#' @importFrom utils tail
+#' @importFrom glue glue
+#' @importFrom readr read_csv
+#' @importFrom tidyselect vars_select_helpers
+
+#'
+#' @examples
+#' library(SLINGtools)
+#'
+#' data_file_path <- system.file("extdata",
+#'   "Testdata_Lipidomics_MHQuant_Detailed.csv", package = "SLINGtools")
+#' d <- read_MassHunterCSV(data_file_path)
+#' d
+#'
+#'
+read_MRMkit_raw_area_CSV<- function(filename, silent = FALSE) {
+  d_mrmkit_raw <- readr::read_csv(filename, col_types = readr::cols(.default = "c"),
+                                       col_names = TRUE, trim_ws = TRUE)
+
+  # Extract MRMkit's "QC" info
+  d_mrmkit_featureinfo <- d_mrmkit_raw %>%
+    dplyr::slice(1:3) %>%
+    tidyr::pivot_longer(-.data$name, names_to = "FEATURE_NAME", values_to = "value") %>%
+    tidyr::pivot_wider(names_from = "name" ,values_from = "value") %>%
+    dplyr::mutate(FEATURE_NAME = dplyr::if_else(stringr::str_detect(.data$FEATURE_NAME, "RT"), stringr::str_squish(stringr::str_extract(.data$FEATURE_NAME, ".*(?= RT)")),.data$FEATURE_NAME)) %>%
+    dplyr::rename(PRECURSOR_MZ = .data$precursor, PRODUCT_MZ = .data$product) %>%
+    dplyr::mutate(dplyr::across(.data$PRECURSOR_MZ:.data$RT, as.numeric))  %>%
+    dplyr::mutate(RT = .data$RT/60)
+
+
+  d_mrmkit_data <- d_mrmkit_raw %>%
+    dplyr::slice(-1:-3) %>%
+    dplyr::mutate(RUN_ID = dplyr::row_number(), .before = .data$name) %>%
+    tidyr::pivot_longer(-.data$RUN_ID:-.data$name, names_to = "FEATURE_NAME", values_to = "Intensity") %>%
+    dplyr::rename(ANALYSIS_ID  = .data$name) %>%
+    dplyr::mutate(ANALYSIS_ID = stringr::str_squish(stringr::str_replace(.data$ANALYSIS_ID, stringr::fixed(".mzML"), ""))) %>%
+    dplyr::mutate(FEATURE_NAME = dplyr::if_else(stringr::str_detect(.data$FEATURE_NAME, "RT"), stringr::str_squish(stringr::str_extract(.data$FEATURE_NAME, ".*(?= RT)")),.data$FEATURE_NAME)) %>%
+    dplyr::mutate(dplyr::across(.data$Intensity, as.numeric)) %>%
+    dplyr::left_join(d_mrmkit_featureinfo, by = "FEATURE_NAME") %>%
+    dplyr::relocate(.data$Intensity, .after = dplyr::last_col()) %>%
+    dplyr::mutate(dplyr::across(tidyselect::where(is.character), stringr::str_squish))
+
+  d_mrmkit_data
+
+}
+
+
+
+#' Reads a long CSV file with Feature Intensities
+#'
+#' @param file File name and path of a plain long-format CSV file
+#' @param field Peak parameter (e.g. Area, RT)
+#' @param silent Suppress messages
+#'
+#' @return A tibble in the long format
+#' @export
+#'
+#'
+#'
+#'
+read_MRMkit_results <- function(data, raw_area_file, final_results_file, silent = FALSE) {
+
+  sample_def_cols = c(
+    "DataFileName",
+    "SampleName",
+    "AcqTimeStamp",
+    "SampleType",
+    "VialPosition",
+    "InjVolume",
+    "SampleType",
+    "RUN_ID",
+    "ANALYSIS_ID",
+    "FEATURE_NAME",
+    "Area",
+    "RT",
+    "FWHM",
+    "SN"
+  )
+
+  d_raw <- read_MRMkit_raw_area_CSV(raw_area_file)
+  data@dataset_orig <- d_raw
+
+  if (final_results_file !=""){
+    d_results <- readr::read_csv(final_results_file, col_names = TRUE, trim_ws = TRUE, progress = TRUE, show_col_types = FALSE) %>%
+      dplyr::filter(!is.na(.data$type))%>%
+      dplyr::mutate(filename = str_remove(filename, "\\.mzML")) %>%
+      dplyr::rename(ANALYSIS_ID = filename) %>%
+      #dplyr::mutate(RUN_ID = row_number(), .before = ANALYSIS_ID) %>%
+      dplyr::select(-tidyselect::any_of(c("batch", "type"))) %>%
+      tidyr::pivot_longer(-ANALYSIS_ID, names_to = "FEATURE_NAME", values_to = "normIntensity")
+
+    data@dataset <- data@dataset_orig %>% left_join(d_results, by=c("ANALYSIS_ID", "FEATURE_NAME"))
+
+  }
+  data
+}
+
 
 

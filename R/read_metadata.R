@@ -8,17 +8,8 @@
 #'
 #' @importFrom stats na.omit setNames
 #' @importFrom utils tail
-#' @importFrom rlang .data
 #' @importFrom tidyselect vars_select_helpers
 #' @importFrom dplyr select mutate filter group_by row_number
-#'
-#' @examples
-#' library(SLINGtools)
-#'
-#' data_file_path <- system.file("extdata",
-#'   "Testdata_Lipidomics_MHQuant_Detailed.csv", package = "SLINGtools")
-#' d <- read_MassHunterCSV(data_file_path)
-#' d
 #'
 #'
 import_MSOrganizerXLM <- function(filename, trim_ws = TRUE){
@@ -27,9 +18,9 @@ import_MSOrganizerXLM <- function(filename, trim_ws = TRUE){
     dplyr::mutate(
       VALID_ANALYSIS = TRUE,
       BATCH_ID = as.character(.data$BATCH_ID),
-      RUN_ID = dplyr::row_number()) |>
+      RUN_ID_ANNOT = dplyr::row_number()) |>
     dplyr::select(
-      "RUN_ID",
+      "RUN_ID_ANNOT",
       ANALYSIS_ID = "Sample_Name",
       DATAFILE_NAME = "Sample_Name",
       QC_TYPE = "Sample_Type",
@@ -41,21 +32,22 @@ import_MSOrganizerXLM <- function(filename, trim_ws = TRUE){
     ) |>
     dplyr::group_by(.data$BATCH_ID) |>
     dplyr::mutate(BATCH_NO = dplyr::cur_group_id()) |>
-    dplyr::ungroup()
+    dplyr::ungroup() %>%
+    dplyr::mutate(dplyr::across(tidyselect::where(is.character), stringr::str_squish))
+
 
   d_annot$annot_features <- readxl::read_excel(filename, sheet = "Transition_Name_Annot", trim_ws = TRUE)|>
     dplyr::mutate(
-      FEATURE_ID = stringr::str_squish(.data$Transition_Name),
       FEATURE_NAME = stringr::str_squish(.data$Transition_Name),
       NORM_ISTD_FEATURE_NAME	= stringr::str_squish(.data$Transition_Name_ISTD),
       QUANT_ISTD_FEATURE_NAME = stringr::str_squish(.data$Transition_Name_ISTD),
-      isISTD = (.data$FEATURE_ID == .data$Transition_Name_ISTD),
+      isISTD = (.data$FEATURE_NAME == .data$NORM_ISTD_FEATURE_NAME),
       FEATURE_RESPONSE_FACTOR	= 1,
-      isQUANTIFIER = TRUE,
+      isQUANTIFIER = recode(tolower(.data$Quantifier), "yes" = TRUE, "no"=FALSE),
       isINTEGRATED = TRUE,
-      REMARKS = NA_character_) |>
-    dplyr::select(
-      "FEATURE_ID",
+      REMARKS = NA_character_) %>%
+    dplyr::mutate(dplyr::across(tidyselect::where(is.character), stringr::str_squish)) %>%
+    dplyr::select(dplyr::any_of(c("FEATURE_ID",
       "FEATURE_NAME",
       "isISTD",
       "NORM_ISTD_FEATURE_NAME",
@@ -63,7 +55,7 @@ import_MSOrganizerXLM <- function(filename, trim_ws = TRUE){
       "FEATURE_RESPONSE_FACTOR",
       "isQUANTIFIER",
       "isINTEGRATED",
-      "REMARKS")
+      "REMARKS")))
 
   #ToDo: Merged cell in template
   annot_istd <- readxl::read_excel(filename,
@@ -77,7 +69,8 @@ import_MSOrganizerXLM <- function(filename, trim_ws = TRUE){
     dplyr::mutate(ISTD_COMPOUND_NAME = NA_character_) |>
     dplyr::select(
       QUANT_ISTD_FEATURE_NAME = "Transition_Name_ISTD",
-      ISTD_CONC_nM = "ISTD_Conc_[nM]")
+      ISTD_CONC_nM = "ISTD_Conc_[nM]") %>%
+    dplyr::mutate(dplyr::across(tidyselect::where(is.character), stringr::str_squish))
 
   d_annot$annot_responsecurves <- readxl::read_excel(filename, sheet = "Dilution_Annot") |>
     dplyr::select(
@@ -86,9 +79,10 @@ import_MSOrganizerXLM <- function(filename, trim_ws = TRUE){
       RELATIVE_SAMPLE_AMOUNT = "Relative_Sample_Amount_[%]",
       INJECTION_VOL = "Injection_Volume_[uL]") |>
     dplyr::mutate(
-      ANALYSIS_ID = as.character(.data$ANALYSIS_ID),
-      RQC_SERIES_ID = as.character(.data$RQC_SERIES_ID),
-      RELATIVE_SAMPLE_AMOUNT = .data$RELATIVE_SAMPLE_AMOUNT/100)
+      ANALYSIS_ID = stringr::str_squish(as.character(.data$ANALYSIS_ID)),
+      RQC_SERIES_ID = stringr::str_squish(as.character(.data$RQC_SERIES_ID)),
+      RELATIVE_SAMPLE_AMOUNT = .data$RELATIVE_SAMPLE_AMOUNT/100) %>%
+      dplyr::mutate(dplyr::across(tidyselect::where(is.character), stringr::str_squish))
 
   return(d_annot)
 }

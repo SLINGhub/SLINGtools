@@ -18,15 +18,6 @@ remotes::install_github("SLINGhub/SLINGtools")
 ## Example
 
 
-``` r
-library(SLINGtools)
-
-data_file_path <- system.file("extdata", "Testdata_Lipidomics_MHQuant_Detailed.csv", 
-                              package = "SLINGtools")
-
-d <- read_MassHunterCSV(data_file_path)
-print(d)
-```
 
 ## Contributor Code of Conduct
 

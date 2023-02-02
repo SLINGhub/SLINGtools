@@ -2,6 +2,14 @@ pkg.env <- new.env()
 
 # Data structure templates
 pkg.env$dataset_templates <- list(
+  dataset_orig_template = tibble::tibble(
+    "ANALYSIS_ID" = character(),
+    "FEATURE_ID"= character(),
+    "Intensity" = numeric(),
+    "normIntensity" = numeric(),
+    "Concentration" = numeric()
+  ),
+
   annot_analyses_template = tibble::tibble(
     "ANALYSIS_ID" = character(),
     "DATAFILE_NAME"= character(),
@@ -49,7 +57,7 @@ pkg.env$dataset_templates <- list(
 )
 
 pkg.env$qc_type_annotation <- list(
-  qc_type_levels = c("SBLK", "TBLK", "UBLK", "BQC", "TQC", "RQC", "EQC", "NIST",
+  qc_type_levels = c("SBLK", "TBLK", "UBLK", "PQC", "TQC", "BQC", "RQC", "EQC", "NIST",
                      "LTR", "PBLK", "SPL", "SST", "MBLK"),
 
   qc_type_col = c(
@@ -58,6 +66,7 @@ pkg.env$qc_type_annotation <- list(
     "UBLK" = "#de21de",
     "BQC" = "#db0202",
     "TQC" = "#1854f9",
+    "PQC" = "#f99f18",
     "RQC" = "#96a4ff",
     "EQC" = "#513c3c",
     "NIST" = "#002e6b",
@@ -73,6 +82,7 @@ pkg.env$qc_type_annotation <- list(
     "UBLK" = "#c1bd04",
     "BQC" = "#db0202",
     "TQC" = "#1854f9",
+    "PQC" = "#f99f18",
     "RQC" = "#688ff9",
     "EQC" = "NA",
     "NIST" = "#cce2ff",
@@ -88,27 +98,16 @@ pkg.env$qc_type_annotation <- list(
     "UBLK" = 23,
     "BQC" = 16,
     "TQC" = 25,
+    "PQC" = 25,
     "RQC" = 6,
     "EQC" = 24,
     "NIST" = 23,
     "LTR" = 23,
     "PBLK" = 23,
-    "SPL" = 22,
+    "SPL" = 21,
     "SST" = 10,
     "MBLK" = 10)
 )
-
-
-
-
-
-
-
-
-
-
-
-
 
 # allow S4 to see the class tbl_df
 setOldClass(c("tbl_df", "tbl", "data.frame"))
@@ -180,11 +179,27 @@ MidarExperiment <- function() {
 
 
 check_integrity <-  function(object) {
+  #browser()
   if (nrow(object@dataset_orig) > 0 & nrow(object@annot_analyses) > 0) {
-    if(!setequal(object@dataset_orig$ANALYSIS_ID, object@annot_analyses$ANALYSIS_ID))
-      "ANALYSIS_ID are not matched between data and sample metadata"
+    d_xy <- length(setdiff(object@dataset_orig$ANALYSIS_ID %>% unique(), object@annot_analyses$ANALYSIS_ID))
+    d_yx <- length(setdiff(object@annot_analyses$ANALYSIS_ID,object@dataset_orig$ANALYSIS_ID %>% unique()))
+    if(d_xy > 0){
+      print(glue::glue("{d_xy} of {object@dataset_orig$ANALYSIS_ID %>% unique() %>% length()} measurements have no matching sample metadata"))
+      if (d_xy < 30) print(paste0(setdiff(object@dataset_orig$ANALYSIS_ID %>% unique(), object@annot_analyses$ANALYSIS_ID), collapse = ", "))
+      else print("too many to display")
+
+      FALSE
+      } else if(d_yx > 0) {
+      warning(glue::glue("{d_yx} of {object@annot_analyses$ANALYSIS_ID %>% length()} sample metadata are not found in the measurement data"))
+      object@status_processing <- "Data and Sample Metadata loaded"
+      TRUE
+      } else {
+      object@status_processing <- "Data and Sample Metadata loaded"
+      TRUE
+    }
+
   } else {
-    object@status_processing <- "Data and Sample Metadata loaded"
+
     TRUE
   }
 }
@@ -230,12 +245,31 @@ setMethod("loadMasshunterCSV", signature = "MidarExperiment", function(data, fil
   data
 })
 
+#' loadMasshunterCSV
+#'
+#' @param data MidarExperiment object
+#' @param filename file name of the MH CSV file
+#'
+#' @importFrom methods validObject
+#'
+#' @return MidarExperiment object
+#' @export
+#'
+#'
+load_MRMkit_csv <- function(data, filename) {
+  data@dataset_orig <- read_MRMkitCSV(filename, silent = FALSE)
+  data@dataset <- data@dataset_orig  %>%
+    dplyr::left_join(data@annot_analyses, by = c("ANALYSIS_ID"="ANALYSIS_ID"))
+  stopifnot(methods::validObject(data))
+  data
+}
+
 
 #' Import metadata from the MSOrganizer template (.XLM)
 #' @param data MidarExperiment object
 #' @param filename file name and path
 
-#' @importFrom rlang .data
+
 #' @return MidarExperiment object
 #' @export
 #'
@@ -246,19 +280,19 @@ setMethod("loadMSOrganizerXLM", signature = "MidarExperiment", function(data, fi
   data@annot_analyses <- data@dataset_orig %>%
     dplyr::select("ANALYSIS_ID") %>%
     dplyr::distinct() %>%
-    dplyr::full_join(d_annot$annot_analyses, by = c("ANALYSIS_ID"), keep = FALSE) %>%
+    dplyr::right_join(d_annot$annot_analyses, by = c("ANALYSIS_ID" = "ANALYSIS_ID"), keep = FALSE) %>%
     dplyr::bind_rows(pkg.env$dataset_templates$annot_analyses_template)
 
   data@annot_features <- data@dataset_orig %>%
     dplyr::select("FEATURE_NAME") %>%
     dplyr::distinct() %>%
-    dplyr::full_join(d_annot$annot_features, by = c("FEATURE_NAME"), keep = FALSE) %>%
+    dplyr::right_join(d_annot$annot_features, by = c("FEATURE_NAME"="FEATURE_NAME"), keep = FALSE) %>%
     dplyr::bind_rows(pkg.env$dataset_templates$annot_features_template)
 
   data@annot_istd <- data@annot_features %>%
     dplyr::select("QUANT_ISTD_FEATURE_NAME") %>%
     dplyr::distinct() %>%
-    dplyr::full_join(d_annot$annot_istd, by = c("QUANT_ISTD_FEATURE_NAME"), keep = FALSE) %>%
+    dplyr::left_join(d_annot$annot_istd, by = c("QUANT_ISTD_FEATURE_NAME"="QUANT_ISTD_FEATURE_NAME"), keep = FALSE) %>%
     dplyr::bind_rows(pkg.env$dataset_templates$annot_istd_template)
 
   data@annot_responsecurves <- data@annot_analyses %>%
@@ -266,7 +300,7 @@ setMethod("loadMSOrganizerXLM", signature = "MidarExperiment", function(data, fi
     dplyr::select("ANALYSIS_ID") %>%
     dplyr::distinct() %>%
     dplyr::ungroup() %>%
-    dplyr::full_join(d_annot$annot_responsecurves, by = c("ANALYSIS_ID"), keep = FALSE) %>%
+    dplyr::right_join(d_annot$annot_responsecurves, by = c("ANALYSIS_ID"="ANALYSIS_ID"), keep = FALSE) %>%
     dplyr::bind_rows(pkg.env$dataset_templates$annot_responsecurves_template)
 
 
@@ -274,14 +308,19 @@ setMethod("loadMSOrganizerXLM", signature = "MidarExperiment", function(data, fi
     dplyr::group_by(.data$BATCH_NO) %>%
     dplyr::summarise(
       BATCH_ID = .data$BATCH_ID[1],
-      id_batch_start = dplyr::first(.data$RUN_ID),
-      id_batch_end = dplyr::last(.data$RUN_ID)) %>%
+      id_batch_start = dplyr::first(.data$RUN_ID_ANNOT),
+      id_batch_end = dplyr::last(.data$RUN_ID_ANNOT)) %>%
     dplyr::ungroup() %>%
     dplyr::arrange(.data$id_batch_start)%>%
     dplyr::bind_rows(pkg.env$dataset_templates$annot_batch_info_template)
 
-  data@dataset <- data@dataset_orig  %>%
-    dplyr::full_join(data@annot_analyses, by = c("RUN_ID", "ANALYSIS_ID"))
+  data@dataset_orig <- data@dataset_orig %>%
+    dplyr::bind_rows(pkg.env$dataset_templates$dataset_orig_template)
+
+  data@dataset <- data@dataset_orig  %>% dplyr::select(-dplyr::any_of(c("FEATURE_ID"))) %>%
+    dplyr::left_join(data@annot_analyses  %>% dplyr::select("ANALYSIS_ID", "QC_TYPE", "BATCH_ID"), by = c("ANALYSIS_ID")) %>%
+    dplyr::right_join(d_annot$annot_features %>% dplyr::select(dplyr::any_of(c("FEATURE_NAME", "NORM_ISTD_FEATURE_NAME", "isISTD", "FEATURE_ID", "isQUANTIFIER"))), by = c("FEATURE_NAME"), keep = FALSE) %>%
+    dplyr::bind_rows(pkg.env$dataset_templates$dataset_orig_template)
   stopifnot(methods::validObject(data))
   data
 })
