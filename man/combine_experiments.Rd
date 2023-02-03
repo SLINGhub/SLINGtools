@@ -9,7 +9,7 @@ combine_experiments(..., ordered_by_runsequence)
 \arguments{
 \item{...}{MidarExperiment objects}
 
-\item{run_order_as_list}{File name and path of the Excel file}
+\item{ordered_by_runsequence}{Boolean if list of provided MidarExperiment objects is in the run order}
 }
 \description{
 Combines a list of MidarExperiments into one

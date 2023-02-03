@@ -2,7 +2,7 @@
 #' Combines a list of MidarExperiments into one
 #'
 #' @param ... MidarExperiment objects
-#' @param run_order_as_list File name and path of the Excel file
+#' @param ordered_by_runsequence Boolean if list of provided MidarExperiment objects is in the run order
 #' @export
 #'
 #' @importFrom glue glue
@@ -21,16 +21,16 @@ combine_experiments <- function(..., ordered_by_runsequence){
   mexp <- MidarExperiment()
 
 
-  mexp@dataset <- purrr::map_dfr(.x = exp_list,  .f = \(x) x@dataset)  |> distinct()
-  mexp@annot_analyses <- purrr::map_dfr(.x = exp_list,  .f = \(x) x@annot_analyses) |> mutate(RUN_ID_ANNOT = row_number())
-  mexp@annot_istd <- purrr::map_dfr(.x = exp_list,  .f = \(x) x@annot_istd)  |> distinct()
-  mexp@annot_features <- purrr::map_dfr(.x = exp_list,  .f = \(x) x@annot_features) |> distinct()
+  mexp@dataset <- purrr::map_dfr(.x = exp_list,  .f = \(x) x@dataset)  |> dplyr::distinct()
+  mexp@annot_analyses <- purrr::map_dfr(.x = exp_list,  .f = \(x) x@annot_analyses) |> mutate(RUN_ID_ANNOT = dplyr::row_number())
+  mexp@annot_istd <- purrr::map_dfr(.x = exp_list,  .f = \(x) x@annot_istd)  |> dplyr::distinct()
+  mexp@annot_features <- purrr::map_dfr(.x = exp_list,  .f = \(x) x@annot_features) |> dplyr::distinct()
 
   mexp@dataset <- mexp@dataset %>%
-    rename(BATCH_RUN_ID = RUN_ID) %>%
-    group_by(FEATURE_NAME) %>%
-    mutate(RUN_ID = row_number(), .before = BATCH_RUN_ID) %>%
-    ungroup()
+    dplyr::rename(BATCH_RUN_ID = .data$RUN_ID) %>%
+    dplyr::group_by(.data$FEATURE_NAME) %>%
+    dplyr::mutate(RUN_ID = dplyr::row_number(), .before = .data$BATCH_RUN_ID) %>%
+    dplyr::ungroup()
 
   mexp@annot_batch_info <- mexp@annot_analyses %>%
     dplyr::group_by(.data$BATCH_ID) %>%

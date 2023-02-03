@@ -25,7 +25,7 @@ setMethod("writeReportXLS", signature = "MidarExperiment", function(data, filena
   if (!stringr::str_detect(filename, ".xlsx")) filename = paste0(filename, ".xlsx")
   d_conc_wide <- data@dataset %>%
     dplyr::filter(.data$QC_TYPE %in% c("SPL", "TQC", "BQC", "NIST", "LTR")) %>%
-    dplyr::filter(!str_detect(FEATURE_NAME, "\\(IS")) %>%
+    dplyr::filter(!str_detect(.data$FEATURE_NAME, "\\(IS")) %>%
     dplyr::select(dplyr::any_of(c("ANALYSIS_ID", "QC_TYPE", "AcqTimeStamp", "FEATURE_NAME", "Concentration"))) %>%
     tidyr::pivot_wider(names_from = "FEATURE_NAME", values_from = "Concentration")
 
@@ -34,7 +34,7 @@ setMethod("writeReportXLS", signature = "MidarExperiment", function(data, filena
     d_conc_wide_QC <- data@dataset_QC_filtered %>%
       # dplyr::filter(.data$QC_TYPE %in% c("SPL", "TQC", "BQC", "NIST", "LTR")) %>%
       dplyr::select(dplyr::any_of(c("ANALYSIS_ID", "QC_TYPE", "AcqTimeStamp", "FEATURE_NAME", "Concentration"))) %>%
-      dplyr::filter(!str_detect(FEATURE_NAME, "\\(IS")) %>%
+      dplyr::filter(!str_detect(.data$FEATURE_NAME, "\\(IS")) %>%
       tidyr::pivot_wider(names_from = "FEATURE_NAME", values_from = "Concentration")
   } else {
     d_conc_wide_QC <- data@dataset_QC_filtered

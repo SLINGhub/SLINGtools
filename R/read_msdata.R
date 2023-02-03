@@ -252,6 +252,7 @@ read_long_table_csv <- function(file, field, silent = FALSE) {
 #' @param field Peak parameter (e.g. Area, RT)
 #' @param sheet Sheet name
 #' @param silent Suppress messages
+#' @importFrom rlang :=
 #'
 #' @return A tibble in the long format
 #' @export
@@ -260,7 +261,7 @@ read_table_wide <- function(data, file, field, sheet = "", silent = FALSE) {
 
   if (!field %in% c("Intensity", "normIntensity", "Concentration", "RT", "FWHM")) stop("Field can only be one of: Intensity, normIntensity, Concentration or RT")
 
-  var_field <- ensym(field)
+  var_field <- rlang::ensym(field)
 
   ext <- fs::path_ext(file)
   if(ext == "csv")
@@ -345,10 +346,10 @@ read_MRMkit_raw_area_CSV<- function(filename, silent = FALSE) {
 
 #' Reads a long CSV file with Feature Intensities
 #'
-#' @param file File name and path of a plain long-format CSV file
-#' @param field Peak parameter (e.g. Area, RT)
-#' @param silent Suppress messages
-#'
+#' @param data MidarExperiment object
+#' @param raw_area_file file path of MRMkit csv output with raw peak areas
+#' @param final_results_file file path of MRMkit csv output with final processed normalized peak areas
+#' @param silent No comments printed
 #' @return A tibble in the long format
 #' @export
 #'
@@ -380,11 +381,11 @@ read_MRMkit_results <- function(data, raw_area_file, final_results_file, silent 
   if (final_results_file !=""){
     d_results <- readr::read_csv(final_results_file, col_names = TRUE, trim_ws = TRUE, progress = TRUE, show_col_types = FALSE) %>%
       dplyr::filter(!is.na(.data$type))%>%
-      dplyr::mutate(filename = str_remove(filename, "\\.mzML")) %>%
-      dplyr::rename(ANALYSIS_ID = filename) %>%
+      dplyr::mutate(filename = str_remove(.data$filename, "\\.mzML")) %>%
+      dplyr::rename(ANALYSIS_ID = .data$filename) %>%
       #dplyr::mutate(RUN_ID = row_number(), .before = ANALYSIS_ID) %>%
       dplyr::select(-tidyselect::any_of(c("batch", "type"))) %>%
-      tidyr::pivot_longer(-ANALYSIS_ID, names_to = "FEATURE_NAME", values_to = "normIntensity")
+      tidyr::pivot_longer(-.data$ANALYSIS_ID, names_to = "FEATURE_NAME", values_to = "normIntensity")
 
     data@dataset <- data@dataset_orig %>% left_join(d_results, by=c("ANALYSIS_ID", "FEATURE_NAME"))
 

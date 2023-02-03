@@ -7,11 +7,13 @@
 read_MRMkit_results(data, raw_area_file, final_results_file, silent = FALSE)
 }
 \arguments{
-\item{silent}{Suppress messages}
+\item{data}{MidarExperiment object}
 
-\item{file}{File name and path of a plain long-format CSV file}
+\item{raw_area_file}{file path of MRMkit csv output with raw peak areas}
 
-\item{field}{Peak parameter (e.g. Area, RT)}
+\item{final_results_file}{file path of MRMkit csv output with final processed normalized peak areas}
+
+\item{silent}{No comments printed}
 }
 \value{
 A tibble in the long format

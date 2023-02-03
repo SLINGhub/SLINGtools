@@ -8,7 +8,7 @@ Description: R functions to facilitate managing, processing and evaluating lipid
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Suggests: 
     knitr,
     rmarkdown,
@@ -39,5 +39,6 @@ Imports:
     forcats,
     ggplot2,
     ggh4x,
-    fs
+    fs,
+    cowplot
 VignetteBuilder: knitr

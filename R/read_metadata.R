@@ -10,6 +10,7 @@
 #' @importFrom utils tail
 #' @importFrom tidyselect vars_select_helpers
 #' @importFrom dplyr select mutate filter group_by row_number
+#' @importFrom dplyr recode
 #'
 #'
 import_MSOrganizerXLM <- function(filename, trim_ws = TRUE){
@@ -43,7 +44,7 @@ import_MSOrganizerXLM <- function(filename, trim_ws = TRUE){
       QUANT_ISTD_FEATURE_NAME = stringr::str_squish(.data$Transition_Name_ISTD),
       isISTD = (.data$FEATURE_NAME == .data$NORM_ISTD_FEATURE_NAME),
       FEATURE_RESPONSE_FACTOR	= 1,
-      isQUANTIFIER = recode(tolower(.data$Quantifier), "yes" = TRUE, "no"=FALSE),
+      isQUANTIFIER = dplyr::recode(tolower(.data$Quantifier), "yes" = TRUE, "no"=FALSE),
       isINTEGRATED = TRUE,
       REMARKS = NA_character_) %>%
     dplyr::mutate(dplyr::across(tidyselect::where(is.character), stringr::str_squish)) %>%

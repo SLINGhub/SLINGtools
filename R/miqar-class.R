@@ -245,24 +245,24 @@ setMethod("loadMasshunterCSV", signature = "MidarExperiment", function(data, fil
   data
 })
 
-#' loadMasshunterCSV
-#'
-#' @param data MidarExperiment object
-#' @param filename file name of the MH CSV file
-#'
-#' @importFrom methods validObject
-#'
-#' @return MidarExperiment object
-#' @export
-#'
-#'
-load_MRMkit_csv <- function(data, filename) {
-  data@dataset_orig <- read_MRMkitCSV(filename, silent = FALSE)
-  data@dataset <- data@dataset_orig  %>%
-    dplyr::left_join(data@annot_analyses, by = c("ANALYSIS_ID"="ANALYSIS_ID"))
-  stopifnot(methods::validObject(data))
-  data
-}
+#' #' load_MRMkit_csv
+#' #'
+#' #' @param data MidarExperiment object
+#' #' @param filename file name of the MH CSV file
+#' #'
+#' #' @importFrom methods validObject
+#' #'
+#' #' @return MidarExperiment object
+#' #' @export
+#' #'
+#' #'
+#' load_MRMkit_csv <- function(data, filename) {
+#'   data@dataset_orig <- read_MRMkitCSV(filename, silent = FALSE)
+#'   data@dataset <- data@dataset_orig  %>%
+#'     dplyr::left_join(data@annot_analyses, by = c("ANALYSIS_ID"="ANALYSIS_ID"))
+#'   stopifnot(methods::validObject(data))
+#'   data
+#' }
 
 
 #' Import metadata from the MSOrganizer template (.XLM)

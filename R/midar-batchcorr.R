@@ -16,14 +16,14 @@ batch_corr_center <- function(data, qc_types, center_by_fun = "median"){
 
   ds <- data@dataset
   ds <- ds %>%
-    group_by(.data$FEATURE_NAME,  .data$BATCH_ID) %>%
-    mutate(CONC_FINAL = .data$Concentration/median(.data$Concentration[.data$QC_TYPE %in% qc_types], na.rm = TRUE)) %>%
-    ungroup()
+    dplyr::group_by(.data$FEATURE_NAME,  .data$BATCH_ID) %>%
+    dplyr::mutate(CONC_FINAL = .data$Concentration/median(.data$Concentration[.data$QC_TYPE %in% qc_types], na.rm = TRUE)) %>%
+    dplyr::ungroup()
 
 
   ds <- ds %>%
-    group_by(.data$FEATURE_NAME) %>%
-    mutate(CONC_FINAL =  CONC_FINAL * median(Concentration[.data$QC_TYPE %in% qc_types], na.rm = TRUE))
+    dplyr::group_by(.data$FEATURE_NAME) %>%
+    dplyr::mutate(CONC_FINAL =  .data$CONC_FINAL * median(.data$Concentration[.data$QC_TYPE %in% qc_types], na.rm = TRUE))
 
   data@dataset <- ds
   data
@@ -39,7 +39,7 @@ batch_corr_center <- function(data, qc_types, center_by_fun = "median"){
 #' @param loess_span Loess span width (default is 0.75)
 #' @param limit_to_species Apply correction only to species matching (RegEx)
 #' @param apply_only_if_smpl_cv_lower Apply correction only if sample CV decreases (default is FALSE)
-#' @param Minimum CV difference when using apply_only_if_smpl_cv_lower
+#' @param treshold_smpl_cv_delta Maximum sample CV change for correction to be applied
 #'
 #' @export
 #'
@@ -66,7 +66,7 @@ drift_corr_loess <- function(data, qc_types, smooth_by_batch = TRUE, log2_transf
   if(is.null(limit_to_species))
     ds <- data@dataset
   else
-    ds <- data@dataset %>% dplyr::filter(stringr::str_detect(FEATURE_NAME, limit_to_species))
+    ds <- data@dataset %>% dplyr::filter(stringr::str_detect(.data$FEATURE_NAME, limit_to_species))
 
 
   ds$x <- ds$RUN_ID
@@ -77,30 +77,30 @@ drift_corr_loess <- function(data, qc_types, smooth_by_batch = TRUE, log2_transf
     group_by(.data$FEATURE_NAME, .data$BATCH_ID) %>%
     nest() %>%
     mutate(Y_PREDICTED = purrr::map(data, \(x) get_loess(x, qc_types, loess_span))) %>%
-    unnest(cols = c(data, Y_PREDICTED))
+    unnest(cols = c(data, .data$Y_PREDICTED))
 
 
   if(log2_transform){
     d <- d %>%
-      group_by(FEATURE_NAME, .data$BATCH_ID) %>%
-      mutate(Y_PREDICTED = Y_PREDICTED - median(Y_PREDICTED, na.rm = TRUE),
-             Y_ADJ = 2^(.data$y - Y_PREDICTED))
+      group_by(.data$FEATURE_NAME, .data$BATCH_ID) %>%
+      mutate(Y_PREDICTED = .data$Y_PREDICTED - median(.data$Y_PREDICTED, na.rm = TRUE),
+             Y_ADJ = 2^(.data$y - .data$Y_PREDICTED))
   } else {
     d <- d %>%
-      group_by(FEATURE_NAME, .data$BATCH_ID) %>%
-      mutate(Y_PREDICTED = Y_PREDICTED / median(Y_PREDICTED, na.rm = TRUE),
-             Y_ADJ = .data$y / Y_PREDICTED)
+      group_by(.data$FEATURE_NAME, .data$BATCH_ID) %>%
+      mutate(Y_PREDICTED = .data$Y_PREDICTED / median(.data$Y_PREDICTED, na.rm = TRUE),
+             Y_ADJ = .data$y / .data$Y_PREDICTED)
   }
 
   if(!apply_only_if_smpl_cv_lower)  treshold_smpl_cv_delta = Inf
 
   d <- d %>%
-    group_by(FEATURE_NAME, .data$BATCH_ID) %>%
-    mutate(CV_RAW_SPL = sd(Concentration[QC_TYPE == "SPL"], na.rm = TRUE)/mean(Concentration[QC_TYPE == "SPL"], na.rm = TRUE) *100,
-           CV_ADJ_SPL = sd(Y_ADJ[QC_TYPE == "SPL"], na.rm = TRUE)/mean(Y_ADJ[QC_TYPE == "SPL"], na.rm = TRUE) *100) %>%
+    group_by(.data$FEATURE_NAME, .data$BATCH_ID) %>%
+    mutate(CV_RAW_SPL = sd(.data$Concentration[.data$QC_TYPE == "SPL"], na.rm = TRUE)/mean(.data$Concentration[.data$QC_TYPE == "SPL"], na.rm = TRUE) *100,
+           CV_ADJ_SPL = sd(.data$Y_ADJ[.data$QC_TYPE == "SPL"], na.rm = TRUE)/mean(.data$Y_ADJ[.data$QC_TYPE == "SPL"], na.rm = TRUE) *100) %>%
     mutate(
-      DRIFT_CORRECTED = (CV_RAW_SPL - CV_ADJ_SPL) >  treshold_smpl_cv_delta,
-      Y_FINAL = if_else(apply_only_if_smpl_cv_lower & DRIFT_CORRECTED, Y_ADJ, Concentration))
+      DRIFT_CORRECTED = (.data$CV_RAW_SPL - .data$CV_ADJ_SPL) >  treshold_smpl_cv_delta,
+      Y_FINAL = dplyr::if_else(apply_only_if_smpl_cv_lower & .data$DRIFT_CORRECTED, .data$Y_ADJ, .data$Concentration))
 
 
   data@dataset <- data@dataset %>% dplyr::left_join(d %>% dplyr::select("ANALYSIS_ID", "FEATURE_NAME", CURVE_PREDICTED = "Y_PREDICTED", CONC_DRIFT_ADJ = "Y_ADJ", "CV_RAW_SPL", "CV_ADJ_SPL", "DRIFT_CORRECTED", CONC_FINAL = "Y_FINAL"))

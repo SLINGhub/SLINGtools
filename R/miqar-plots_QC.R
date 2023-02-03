@@ -42,6 +42,9 @@
 #' @importFrom scales percent_format
 #' @importFrom ggpmisc stat_poly_line stat_poly_eq
 #' @importFrom grDevices dev.off pdf
+#' @importFrom stats prcomp
+#' @importFrom utils head
+#'
 #'
 plot_runscatter <- function(data, y_var, transition_filter, filter_exclude = FALSE,
                             cap_values, cap_SPL_SD, cap_QC_SD, cap_top_n, QC_TYPE_fit,
@@ -62,11 +65,11 @@ plot_runscatter <- function(data, y_var, transition_filter, filter_exclude = FAL
 
   # cap upper range of dataset to avoid skewness
   dat_filt <- dat_filt %>%
-    mutate(value =  !!y_var_s)
+    dplyr::mutate(value =  !!y_var_s)
 
   dat_filt <- dat_filt %>%
-    group_by(.data$FEATURE_NAME) %>%
-    mutate(
+    dplyr::group_by(.data$FEATURE_NAME) %>%
+    dplyr::mutate(
       value_max_spl = mean(.data$value[.data$QC_TYPE=="SPL"], na.rm=T) + cap_SPL_SD * sd(.data$value[.data$QC_TYPE=="SPL"], na.rm=T),
       value_max_qc = mean(.data$value[.data$QC_TYPE==QC_TYPE_fit], na.rm=T) + cap_QC_SD * sd(.data$value[.data$QC_TYPE==QC_TYPE_fit]), na.rm=T,
       value_max = max(.data$value_max_spl, .data$value_max_qc, na.rm=T),
@@ -78,7 +81,7 @@ plot_runscatter <- function(data, y_var, transition_filter, filter_exclude = FAL
     dplyr::group_by(.data$FEATURE_NAME) %>%
     dplyr::arrange(.data$value) %>%
     mutate(
-      value = ifelse(row_number() < cap_top_n, .data$value[cap_top_n], .data$value)
+      value = ifelse(dplyr::row_number() < cap_top_n, .data$value[cap_top_n], .data$value)
     ) |>
     dplyr::arrange(.data$FEATURE_NAME, .data$RUN_ID) %>%
     dplyr::ungroup()
@@ -149,7 +152,7 @@ runscatter_one_page <- function(dat_filt, data, d_batches, cols_page, rows_page,
   d_batch_data <- d_batch_data %>% dplyr::left_join(dMax, by=c("FEATURE_NAME"))
 
 
-  p <- ggplot(dat_subset, aes_string(x="RUN_ID", label = "ANALYSIS_ID"))
+  p <- ggplot2::ggplot(dat_subset, ggplot2::aes_string(x="RUN_ID", label = "ANALYSIS_ID"))
 
   if (show_batches) {
     if (!batches_as_shades) {
@@ -163,61 +166,61 @@ runscatter_one_page <- function(dat_filt, data, d_batches, cols_page, rows_page,
   }
 
   p <- p +
-    geom_point(aes_string(x = "RUN_ID", y= "value_mod", color="QC_TYPE", fill="QC_TYPE", shape="QC_TYPE", group="BATCH_ID"), size=point_size, alpha=point_transparency, stroke = point_stroke_width)
+    ggplot2::geom_point(aes_string(x = "RUN_ID", y= "value_mod", color="QC_TYPE", fill="QC_TYPE", shape="QC_TYPE", group="BATCH_ID"), size=point_size, alpha=point_transparency, stroke = point_stroke_width)
 
 
 
   if(after_correction & show_driftcorrection){
     p <- p +
-      geom_line(aes_string(x = "RUN_ID", y= "value_fitted", group = "BATCH_ID"), color = pkg.env$qc_type_annotation$qc_type_fillcol[QC_TYPE_fit], size = .5)
+      ggplot2::geom_line(aes_string(x = "RUN_ID", y= "value_fitted", group = "BATCH_ID"), color = pkg.env$qc_type_annotation$qc_type_fillcol[QC_TYPE_fit], size = .5)
   }
 
   p <- p +
-    ggh4x::facet_wrap2(vars(.data$FEATURE_NAME), scales = "free_y", ncol = cols_page, nrow = rows_page,trim_blank = FALSE) +
-    expand_limits(y = 0) +
-    scale_color_manual(values=pkg.env$qc_type_annotation$qc_type_col, drop=TRUE) +
-    scale_fill_manual(values=pkg.env$qc_type_annotation$qc_type_fillcol, drop=TRUE)+
-    scale_shape_manual(values=pkg.env$qc_type_annotation$qc_type_shape, drop=TRUE)
+    ggh4x::facet_wrap2(ggplot2::vars(.data$FEATURE_NAME), scales = "free_y", ncol = cols_page, nrow = rows_page,trim_blank = FALSE) +
+    ggplot2::expand_limits(y = 0) +
+    ggplot2::scale_color_manual(values=pkg.env$qc_type_annotation$qc_type_col, drop=TRUE) +
+    ggplot2::scale_fill_manual(values=pkg.env$qc_type_annotation$qc_type_fillcol, drop=TRUE)+
+    ggplot2::scale_shape_manual(values=pkg.env$qc_type_annotation$qc_type_shape, drop=TRUE)
   if(show_driftcorrection){
     if(after_correction) {
       p <- p +
-        geom_smooth(data = filter(dat_subset, .data$QC_TYPE == QC_TYPE_fit), aes_string(x = "RUN_ID", y= "value", group = "BATCH_ID"), se=TRUE,
+        ggplot2::geom_smooth(data = filter(dat_subset, .data$QC_TYPE == QC_TYPE_fit), ggplot2::aes_string(x = "RUN_ID", y= "value", group = "BATCH_ID"), se=TRUE,
                     colour=pkg.env$qc_type_annotation$qc_type_fillcol[QC_TYPE_fit], fill = pkg.env$qc_type_annotation$qc_type_fillcol[QC_TYPE_fit],
                     method = MASS::rlm, alpha = 0.2, size=0.4) +
-        geom_smooth(data = filter(dat_subset, .data$QC_TYPE == "SPL"), aes_string(x = "RUN_ID", y= "value", group = "BATCH_ID"), colour=trend_samples_col, fill = trend_samples_col,
+        ggplot2::geom_smooth(data = filter(dat_subset, .data$QC_TYPE == "SPL"), ggplot2::aes_string(x = "RUN_ID", y= "value", group = "BATCH_ID"), colour=trend_samples_col, fill = trend_samples_col,
                     method = trend_samples_fun, se=TRUE, alpha = 0.2, size=.4, na.rm = FALSE)
 
       if(plot_other_qc){
         other_qc <- dplyr::if_else(QC_TYPE_fit == "BQC", "TQC", "BQC")
         other_qc_col <- pkg.env$qc_type_annotation$qc_type_fillcol[other_qc]
         p <- p +
-          geom_smooth(data = filter(dat_subset, .data$QC_TYPE == other_qc), aes_string(x = "RUN_ID", y= "value", group = "BATCH_ID"), colour=other_qc_col, fill = other_qc_col,
+          ggplot2::geom_smooth(data = dplyr::filter(dat_subset, .data$QC_TYPE == other_qc), ggplot2::aes_string(x = "RUN_ID", y= "value", group = "BATCH_ID"), colour=other_qc_col, fill = other_qc_col,
                       method = trend_samples_fun, se=TRUE, alpha = 0.2, size=.4, na.rm = FALSE)
       }
     }
     else {
 
       p <- p +
-        geom_smooth(data = filter(dat_subset, .data$QC_TYPE == "SPL"), aes_string(x = "RUN_ID", y= "value", group = "BATCH_ID"), colour=trend_samples_col, fill = trend_samples_col,
+        geom_smooth(data = dplyr::filter(dat_subset, .data$QC_TYPE == "SPL"), ggplot2::aes_string(x = "RUN_ID", y= "value", group = "BATCH_ID"), colour=trend_samples_col, fill = trend_samples_col,
                     method = trend_samples_fun, se=TRUE, alpha = 0.2, size=.4, na.rm = FALSE)
 
       if(plot_other_qc){
         other_qc <- dplyr::if_else(.data$QC_TYPE_fit == "BQC", "TQC", "BQC")
         other_qc_col <- pkg.env$qc_type_annotation$qc_type_fillcol[other_qc]
         p <- p +
-          geom_smooth(data = filter(dat_subset, .data$QC_TYPE == other_qc), aes_string(x = "RUN_ID", y= "value", group = "BATCH_ID"), colour=other_qc_col, fill = other_qc_col,
+          ggplot2::geom_smooth(data = dplyr::filter(dat_subset, .data$QC_TYPE == other_qc), ggplot2::aes_string(x = "RUN_ID", y= "value", group = "BATCH_ID"), colour=other_qc_col, fill = other_qc_col,
                       method = trend_samples_fun, se=TRUE, alpha = 0.2, size=.4, na.rm = FALSE)
       }
     }
   }
   if(cap_values)
-    p <- p + geom_hline(data = dMax, aes(yintercept = .data$y_max), color = "#C7C5BF", size = 3, alpha = .3)
+    p <- p + ggplot2::geom_hline(data = dMax, ggplot2::aes(yintercept = .data$y_max), color = "#C7C5BF", size = 3, alpha = .3)
 
   p <- p  +
     #aes(ymin=0) +
-    xlab("Injection number") +
-    ylab(label = y_label) +
-    scale_y_continuous(limits = c(0, NA), expand = ggplot2::expansion(mult = c(0.02,0.03))) +
+    ggplot2::xlab("Injection number") +
+    ggplot2::ylab(label = y_label) +
+    ggplot2::scale_y_continuous(limits = c(0, NA), expand = ggplot2::expansion(mult = c(0.02,0.03))) +
     #expand_limits(y = 0) +
     ggplot2::theme_light() +
 
@@ -390,19 +393,19 @@ plot_responsecurves <- function(data,
 
 plot_pca_sling <- function(data, variable, log_transform, dim_x, dim_y, grouping, point_size = 2, fill_alpha = 0.1) {
 
-  d_wide = data@dataset  %>% filter(QC_TYPE %in% c("BQC", "TQC", "NIST", "LTR", "SPL"), !str_detect(FEATURE_NAME, "\\(IS") ) %>%
+  d_wide = data@dataset  %>% filter(.data$QC_TYPE %in% c("BQC", "TQC", "NIST", "LTR", "SPL"), !stringr::str_detect(.data$FEATURE_NAME, "\\(IS") ) %>%
     dplyr::select("ANALYSIS_ID", "QC_TYPE", "BATCH_ID", "FEATURE_NAME", {{variable}})
 
   d_filt <- d_wide %>%
     tidyr::pivot_wider(id_cols = "ANALYSIS_ID", names_from = "FEATURE_NAME", values_from = {{variable}})
 
 
-  d_metadata <- d_wide  %>% dplyr::select("ANALYSIS_ID", "QC_TYPE", "BATCH_ID") |> distinct()
+  d_metadata <- d_wide  %>% dplyr::select("ANALYSIS_ID", "QC_TYPE", "BATCH_ID") |> dplyr::distinct()
   #if(!all(d_filt |> pull(ANALYSIS_ID) == d_metadata |> pull(AnalyticalID))) stop("Data and Metadata missmatch")
 
   m_raw <- d_filt  |>
     dplyr::select(where(~!any(is.na(.)))) |>
-    column_to_rownames("ANALYSIS_ID") |>
+    tibble::column_to_rownames("ANALYSIS_ID") |>
     as.matrix()
 
   if(log_transform) m_raw <- log2(m_raw)
@@ -420,23 +423,23 @@ plot_pca_sling <- function(data, variable, log_transform, dim_x, dim_y, grouping
                                            shape = "QC_TYPE",
                                            label = "ANALYSIS_ID"
   )) +
-    geom_hline(yintercept = 0, size = 0.4, color = "grey80") +
-    geom_vline(xintercept = 0, size = 0.4, color = "grey80") +
-    stat_ellipse(geom = "polygon", level = 0.95,alpha = fill_alpha, size = 0.3) +
-    geom_point(size = point_size)
+    ggplot2::geom_hline(yintercept = 0, size = 0.4, color = "grey80") +
+    ggplot2::geom_vline(xintercept = 0, size = 0.4, color = "grey80") +
+    ggplot2::stat_ellipse(geom = "polygon", level = 0.95,alpha = fill_alpha, size = 0.3) +
+    ggplot2::geom_point(size = point_size)
 
     p <- p +
-      scale_color_manual(values=pkg.env$qc_type_annotation$qc_type_col, drop=TRUE) +
-      scale_fill_manual(values=pkg.env$qc_type_annotation$qc_type_fillcol, drop=TRUE)+
-      scale_shape_manual(values=pkg.env$qc_type_annotation$qc_type_shape, drop=TRUE)
+      ggplot2::scale_color_manual(values=pkg.env$qc_type_annotation$qc_type_col, drop=TRUE) +
+      ggplot2::scale_fill_manual(values=pkg.env$qc_type_annotation$qc_type_fillcol, drop=TRUE)+
+      ggplot2::scale_shape_manual(values=pkg.env$qc_type_annotation$qc_type_shape, drop=TRUE)
 
   p <- p +
-    theme_light(base_size = 8) +
-    xlab(glue::glue("PC{dim_x} ({round(pca_contrib[[dim_x,'percent']]*100,1)}%)"))+
-    ylab(glue::glue("PC{dim_y} ({round(pca_contrib[[dim_y,'percent']]*100,1)}%)"))+
-    theme(
-      panel.grid = element_line(size = 0.3, color = "grey95"),
-      panel.border = element_rect(size = 1, color = "grey70"),
+    ggplot2::theme_light(base_size = 8) +
+    ggplot2::xlab(glue::glue("PC{dim_x} ({round(pca_contrib[[dim_x,'percent']]*100,1)}%)"))+
+    ggplot2::ylab(glue::glue("PC{dim_y} ({round(pca_contrib[[dim_y,'percent']]*100,1)}%)"))+
+    ggplot2::theme(
+      panel.grid = ggplot2::element_line(size = 0.3, color = "grey95"),
+      panel.border = ggplot2::element_rect(size = 1, color = "grey70"),
       aspect.ratio=1)
 
   p
@@ -446,19 +449,19 @@ plot_pca_pairs <- function(data, variable, dim_range = c(1,8), log_transform = T
                            point_size = 0.5, fill_alpha = 0.1, legend_pos = "right"){
 
 
-  d_wide = data@dataset  %>% filter(QC_TYPE %in% c("BQC", "TQC", "NIST", "LTR", "SPL"), !str_detect(FEATURE_NAME, "\\(IS") ) %>%
+  d_wide = data@dataset  %>% filter(.data$QC_TYPE %in% c("BQC", "TQC", "NIST", "LTR", "SPL"), !stringr::str_detect(.data$FEATURE_NAME, "\\(IS") ) %>%
     dplyr::select("ANALYSIS_ID", "QC_TYPE", "BATCH_ID", "FEATURE_NAME", {{variable}})
 
   d_filt <- d_wide %>%
     tidyr::pivot_wider(id_cols = "ANALYSIS_ID", names_from = "FEATURE_NAME", values_from = {{variable}})
 
 
-  d_metadata <- d_wide  %>% dplyr::select("ANALYSIS_ID", "QC_TYPE", "BATCH_ID") |> distinct()
+  d_metadata <- d_wide  %>% dplyr::select("ANALYSIS_ID", "QC_TYPE", "BATCH_ID") |> dplyr::distinct()
   #if(!all(d_filt |> pull(ANALYSIS_ID) == d_metadata |> pull(AnalyticalID))) stop("Data and Metadata missmatch")
 
   m_raw <- d_filt  |>
     dplyr::select(where(~!any(is.na(.)))) |>
-    column_to_rownames("ANALYSIS_ID") |>
+    tibble::column_to_rownames("ANALYSIS_ID") |>
     as.matrix()
 
   if(log_transform) m_raw <- log2(m_raw)
@@ -486,7 +489,7 @@ plot_pca_pairs <- function(data, variable, dim_range = c(1,8), log_transform = T
                                              fill = grouping )) +
       geom_hline(yintercept = 0, size = 0.2, color = "grey80") +
       geom_vline(xintercept = 0, size = 0.2, color = "grey80") +
-      stat_ellipse(geom = "polygon", level = 0.95,alpha = fill_alpha, size = 0.2) +
+      ggplot2::stat_ellipse(geom = "polygon", level = 0.95,alpha = fill_alpha, size = 0.2) +
       geom_point(size = point_size)
 
     p <- p +
@@ -496,19 +499,19 @@ plot_pca_pairs <- function(data, variable, dim_range = c(1,8), log_transform = T
 
 
     p <- p +
-      theme_light(base_size = 6) +
-      xlab(glue::glue("PC{i} ({round(pca_contrib[[i,'percent']]*100,1)}%)"))+
-      ylab(glue::glue("PC{i+1} ({round(pca_contrib[[i+1,'percent']]*100,1)}%)"))+
-      theme(
-        panel.grid = element_line(size = 0.2, color = "grey95"),
-        panel.border = element_rect(size = .5, color = "grey70"),
+      ggplot2::theme_light(base_size = 6) +
+      ggplot2::xlab(glue::glue("PC{i} ({round(pca_contrib[[i,'percent']]*100,1)}%)"))+
+      ggplot2::ylab(glue::glue("PC{i+1} ({round(pca_contrib[[i+1,'percent']]*100,1)}%)"))+
+      ggplot2::theme(
+        panel.grid = ggplot2::element_line(size = 0.2, color = "grey95"),
+        panel.border = ggplot2::element_rect(size = .5, color = "grey70"),
         aspect.ratio=1)
 
-    plot_list[[j]] <- p + theme(legend.position = "none")
+    plot_list[[j]] <- p + ggplot2::theme(legend.position = "none")
     j = j + 1
   }
   lg <- cowplot::get_legend(plot_list[[1]] + theme(legend.position = legend_pos,
-                                                   legend.margin=margin(c(0,0,0,0))))
+                                                   legend.margin = ggplot2::margin(c(0,0,0,0))))
   pl1 <- cowplot::plot_grid( plotlist = plot_list, ncol = ncol)
   print(cowplot::plot_grid( pl1,lg, ncol = 1, rel_heights = c(1,0.2)))
 }
@@ -518,7 +521,7 @@ plot_pca_loading_coord <- function(data, variable, log_transform, dim_x, dim_y, 
   PCx = rlang::sym(paste0("PC",dim_x))
   PCy = rlang::sym(paste0("PC",dim_y))
 
-  d_wide = data@dataset  %>% filter(QC_TYPE %in% c("BQC", "TQC", "NIST", "LTR", "SPL"), !str_detect(FEATURE_NAME, "\\(IS") ) %>%
+  d_wide = data@dataset  %>% filter(.data$QC_TYPE %in% c("BQC", "TQC", "NIST", "LTR", "SPL"), !stringr::str_detect(.data$FEATURE_NAME, "\\(IS") ) %>%
     dplyr::select("ANALYSIS_ID", "QC_TYPE", "BATCH_ID", "FEATURE_NAME", {{variable}})
 
   d_filt <- d_wide %>%
@@ -526,7 +529,7 @@ plot_pca_loading_coord <- function(data, variable, log_transform, dim_x, dim_y, 
 
   m_raw <- d_filt  |>
     dplyr::select(where(~!any(is.na(.)))) |>
-    column_to_rownames("ANALYSIS_ID") |>
+    tibble::column_to_rownames("ANALYSIS_ID") |>
     as.matrix()
 
   if(log_transform) m_raw <- log2(m_raw)
@@ -536,41 +539,41 @@ plot_pca_loading_coord <- function(data, variable, log_transform, dim_x, dim_y, 
     broom::tidy(matrix = "rotation") %>%
     tidyr::pivot_wider(names_from = "PC", names_prefix = "PC", values_from = "value")
 
-  d_top_loadings <- d_loading |> dplyr::select(column, !!PCx, !!PCy) |> mutate(vl = (!!PCx)^2 + (!!PCy)^2) |> arrange(desc(vl)) |> head(top_n)
+  d_top_loadings <- d_loading |> dplyr::select("column", !!PCx, !!PCy) |> mutate(vl = (!!PCx)^2 + (!!PCy)^2) |> dplyr::arrange(dplyr::desc(.data$vl)) |> head(top_n)
   x_max <- max(abs(d_top_loadings[, glue::glue("PC{dim_x}")]))
   y_max <- max(abs(d_top_loadings[, glue::glue("PC{dim_y}")]))
 
   # define arrow style for plotting
-  arrow_style <- arrow(
+  arrow_style <- ggplot2::arrow(
     angle = 20, ends = "first", type = "closed", length = grid::unit(6, "pt")
   )
 
   p <-  ggplot(d_top_loadings, aes_string(glue::glue("PC{dim_x}"), glue::glue("PC{dim_y}"))) +
-    geom_segment(xend = 0, yend = 0, arrow = arrow_style, color = "grey60", size = 0.3) +
-    geom_text(
-      aes(label = column),
+    ggplot2::geom_segment(xend = 0, yend = 0, arrow = arrow_style, color = "grey60", size = 0.3) +
+    ggplot2::geom_text(
+      aes(label = .data$column),
       size = text_size,
       hjust = 0, nudge_x = -0.01,
       color = "#904C2F"
     ) +
-    scale_x_continuous(limits = c(-x_max*1.2, x_max*1.2), expand = expansion(mult = .2))+
-    scale_y_continuous(limits = c(-y_max*1.2, y_max*1.2), expand = expansion(mult = .2))+
+    ggplot2::scale_x_continuous(limits = c(-x_max*1.2, x_max*1.2), expand = ggplot2::expansion(mult = .2))+
+    ggplot2::scale_y_continuous(limits = c(-y_max*1.2, y_max*1.2), expand = ggplot2::expansion(mult = .2))+
     #coord_fixed(xlim = c(-x_max, x_max), ylim = c(-y_max, y_max)) + # fix aspect ratio to 1:1
-    theme_light(base_size = 7) +
-    theme(aspect.ratio=1)
+    ggplot2::theme_light(base_size = 7) +
+    ggplot2::theme(aspect.ratio=1)
   p
 }
 
 plot_pca_loading <- function(data, variable, log_transform, pc_dimensions, top_n, scale_pos_neg = FALSE, point_size = 2, fill_alpha = 0.1){
 
-  d_wide = data@dataset  %>% filter(QC_TYPE %in% c("BQC", "TQC", "NIST", "LTR", "SPL"), !str_detect(FEATURE_NAME, "\\(IS") ) %>%
+  d_wide = data@dataset  %>% filter(.data$QC_TYPE %in% c("BQC", "TQC", "NIST", "LTR", "SPL"), !stringr::str_detect(.data$FEATURE_NAME, "\\(IS") ) %>%
     dplyr::select("ANALYSIS_ID", "QC_TYPE", "BATCH_ID", "FEATURE_NAME", {{variable}})
 
   d_filt <- d_wide %>%
     tidyr::pivot_wider(id_cols = "ANALYSIS_ID", names_from = "FEATURE_NAME", values_from = {{variable}})
 
   m_raw <- d_filt  |>
-    column_to_rownames("ANALYSIS_ID") |>
+    tibble::column_to_rownames("ANALYSIS_ID") |>
     dplyr::select(where(~!any(is.na(.)))) |>
     as.matrix()
 
@@ -580,36 +583,36 @@ plot_pca_loading <- function(data, variable, log_transform, pc_dimensions, top_n
   d_loading <- pca_res %>%
     broom::tidy(matrix = "rotation") %>%
     tidyr::pivot_wider(names_from = "PC", names_prefix = "PC", values_from = "value") |>
-    rename(Compound = column)
+    dplyr::rename(Compound = .data$column)
 
   d_loadings_selected <- d_loading |>
-    pivot_longer(cols = -Compound,  names_to = "PC", values_to = "Value") |>
-    mutate(PC = as.numeric(str_remove(PC, "PC"))) |>
-    filter(PC %in% pc_dimensions)
+    tidyr::pivot_longer(cols = -.data$Compound,  names_to = "PC", values_to = "Value") |>
+    dplyr::mutate(PC = as.numeric(stringr::str_remove(.data$PC, "PC"))) |>
+    filter(.data$PC %in% pc_dimensions)
 
 
   d_loadings_selected <- d_loadings_selected |>
-    rowwise() |>
-    mutate(direction = if_else(Value < 0, "neg", "pos"),
-           Value = if_else(!scale_pos_neg, abs(Value), Value),
-           abs_value = abs(Value)) |>
-    group_by(PC) |>
-    arrange(abs_value) |>
-    slice_max(order_by = abs_value, n = top_n) |>
+    dplyr::rowwise() |>
+    dplyr::mutate(direction = if_else(.data$Value < 0, "neg", "pos"),
+           Value = dplyr::if_else(!scale_pos_neg, abs(.data$Value), .data$Value),
+           abs_value = abs(.data$Value)) |>
+    group_by(.data$PC) |>
+    dplyr::arrange(.data$abs_value) |>
+    dplyr::slice_max(order_by = .data$abs_value, n = .data$top_n) |>
     ungroup() |>
-    unite("E", Compound, PC, remove = FALSE) |>
-    mutate(PC = as.factor(PC),
-           E = fct_reorder(E, abs_value))
+    tidyr::unite("E", .data$Compound, .data$PC, remove = FALSE) |>
+    mutate(PC = as.factor(.data$PC),
+           E = forcats::fct_reorder(.data$E, .data$abs_value))
 
 
-  p <- ggplot(d_loadings_selected, aes(x = E, y = Value, color = direction, fill = direction)) +
-    geom_col()+
-    facet_wrap(vars(PC), nrow=1,scales = "free") +
-    scale_x_discrete(labels=d_loadings_selected$Compound, breaks=d_loadings_selected$E) +
-    scale_color_manual(values = c("neg" = "blue", "pos" = "red")) +
-    scale_fill_manual(values = c("neg" = "blue", "pos" = "red")) +
-    coord_flip() +
-    theme_light(base_size = 8)
+  p <- ggplot(d_loadings_selected, ggplot2::aes(x = .data$E, y = .data$Value, color = .data$direction, fill = .data$direction)) +
+    ggplot2::geom_col()+
+    ggplot2::facet_wrap(ggplot2::vars(.data$PC), nrow=1,scales = "free") +
+    ggplot2::scale_x_discrete(labels=d_loadings_selected$Compound, breaks=d_loadings_selected$E) +
+    ggplot2::scale_color_manual(values = c("neg" = "blue", "pos" = "red")) +
+    ggplot2::scale_fill_manual(values = c("neg" = "blue", "pos" = "red")) +
+    ggplot2::coord_flip() +
+    ggplot2::theme_light(base_size = 8)
 
   p
 

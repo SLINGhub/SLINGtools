@@ -2,7 +2,25 @@
 % Please edit documentation in R/miqar-class.R
 \name{loadMSOrganizerXLM,MidarExperiment-method}
 \alias{loadMSOrganizerXLM,MidarExperiment-method}
-\title{Import metadata from the MSOrganizer template (.XLM)}
+\title{#' load_MRMkit_csv
+#'
+#' @param data MidarExperiment object
+#' @param filename file name of the MH CSV file
+#'
+#' @importFrom methods validObject
+#'
+#' @return MidarExperiment object
+#' @export
+#'
+#'
+load_MRMkit_csv <- function(data, filename) {
+data@dataset_orig <- read_MRMkitCSV(filename, silent = FALSE)
+data@dataset <- data@dataset_orig  \%>\%
+dplyr::left_join(data@annot_analyses, by = c("ANALYSIS_ID"="ANALYSIS_ID"))
+stopifnot(methods::validObject(data))
+data
+}
+Import metadata from the MSOrganizer template (.XLM)}
 \usage{
 \S4method{loadMSOrganizerXLM}{MidarExperiment}(data, filename)
 }
@@ -15,5 +33,23 @@
 MidarExperiment object
 }
 \description{
+#' load_MRMkit_csv
+#'
+#' @param data MidarExperiment object
+#' @param filename file name of the MH CSV file
+#'
+#' @importFrom methods validObject
+#'
+#' @return MidarExperiment object
+#' @export
+#'
+#'
+load_MRMkit_csv <- function(data, filename) {
+data@dataset_orig <- read_MRMkitCSV(filename, silent = FALSE)
+data@dataset <- data@dataset_orig  \%>\%
+dplyr::left_join(data@annot_analyses, by = c("ANALYSIS_ID"="ANALYSIS_ID"))
+stopifnot(methods::validObject(data))
+data
+}
 Import metadata from the MSOrganizer template (.XLM)
 }

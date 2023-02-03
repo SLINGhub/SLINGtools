@@ -16,7 +16,7 @@ plot_runscatter(
   QC_TYPE_fit,
   show_driftcorrection,
   trend_samples_fun = "loess",
-  trend_samples_col = "grey50",
+  trend_samples_col,
   after_correction,
   plot_other_qc = TRUE,
   show_batches,
