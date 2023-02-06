@@ -332,8 +332,8 @@ plot_responsecurves <- function(data,
     dplyr::select(tidyselect::any_of(
       c("ANALYSIS_ID", "FEATURE_NAME", "Intensity", "normIntensity")
     )) |>
-    dplyr::filter(stringr::str_detect(.data$FEATURE_NAME, include_features_containing)) |>
-    dplyr::filter(!stringr::str_detect(.data$FEATURE_NAME, exclude_features_containing, negate = TRUE)) |>
+    dplyr::filter(stringr::str_detect(.data$FEATURE_NAME, paste0("^$|", include_features_containing))) |>
+    dplyr::filter(!stringr::str_detect(.data$FEATURE_NAME, paste0("^$|", exclude_features_containing, negate = TRUE))) |>
     dplyr::right_join(data@annot_responsecurves, by = c("ANALYSIS_ID" = "ANALYSIS_ID"))
 
 
@@ -371,7 +371,7 @@ plot_responsecurves <- function(data,
     ))
 
   # Print pages
-
+  #browser()
   if (!output_PDF) {
     if (!return_plot_list)
       d_rqc_grp$plt
@@ -382,7 +382,7 @@ plot_responsecurves <- function(data,
       paper = "A4r",
       width = 11
     )
-    invisible(d_rqc_grp$plt)
+    print(d_rqc_grp$plt)
     dev.off()
   }
   if (return_plot_list)

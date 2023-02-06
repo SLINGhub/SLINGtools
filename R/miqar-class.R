@@ -185,9 +185,11 @@ check_integrity <-  function(object) {
     d_yx <- length(setdiff(object@annot_analyses$ANALYSIS_ID,object@dataset_orig$ANALYSIS_ID %>% unique()))
     if(d_xy > 0){
       print(glue::glue("{d_xy} of {object@dataset_orig$ANALYSIS_ID %>% unique() %>% length()} measurements have no matching sample metadata"))
-      if (d_xy < 30) print(paste0(setdiff(object@dataset_orig$ANALYSIS_ID %>% unique(), object@annot_analyses$ANALYSIS_ID), collapse = ", "))
-      else print("too many to display")
-
+      if (d_xy < 100) print(paste0(setdiff(object@dataset_orig$ANALYSIS_ID %>% unique(), object@annot_analyses$ANALYSIS_ID), collapse = ", "))
+      else {
+        print("too many to display")
+        #rint(paste0(setdiff(object@dataset_orig$ANALYSIS_ID %>% unique(), object@annot_analyses$ANALYSIS_ID[1:100]), collapse = ", ")
+        }
       FALSE
       } else if(d_yx > 0) {
       warning(glue::glue("{d_yx} of {object@annot_analyses$ANALYSIS_ID %>% length()} sample metadata are not found in the measurement data"))
