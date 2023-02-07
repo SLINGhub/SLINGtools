@@ -61,7 +61,7 @@ plot_runscatter <- function(data, y_var, transition_filter, filter_exclude = FAL
   #  filter data
   dat_filt <- data@dataset %>% dplyr::ungroup() %>%
     dplyr::arrange(.data$FEATURE_NAME, .data$RUN_ID) %>%
-    dplyr::filter(stringr::str_detect(.data$FEATURE_NAME, transition_filter, negate = filter_exclude))
+    dplyr::filter(stringr::str_detect(.data$FEATURE_NAME, paste0("^$|", transition_filter), negate = filter_exclude))
 
   # cap upper range of dataset to avoid skewness
   dat_filt <- dat_filt %>%
