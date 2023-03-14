@@ -313,7 +313,10 @@ read_table_wide <- function(data, file, field, sheet = "", silent = FALSE) {
 #'
 #'
 read_MRMkit_raw_area_CSV<- function(filename, use_mrmkit_normdata = FALSE, silent = FALSE) {
-  d_mrmkit_raw <- readr::read_csv(filename, col_types = readr::cols(.default = "c"),
+
+  sep <- if_else(fs::path_ext(filename) == "csv", ",", "\t")
+
+  d_mrmkit_raw <- readr::read_delim(filename, delim = sep, col_types = readr::cols(.default = "c"),
                                        col_names = TRUE, trim_ws = TRUE)
 
   # Extract MRMkit's "QC" info
@@ -381,8 +384,10 @@ read_MRMkit_results <- function(data, raw_area_file, final_results_file, silent 
   d_raw <- read_MRMkit_raw_area_CSV(raw_area_file)
   data@dataset_orig <- d_raw
 
+  sep <- if_else(fs::path_ext(final_results_file) == "csv", ",", "\t")
+
   if (final_results_file !=""){
-    d_results <- readr::read_csv(final_results_file, col_names = TRUE, trim_ws = TRUE, progress = TRUE, show_col_types = FALSE) %>%
+    d_results <- readr::read_delim(final_results_file, delim = sep, col_names = TRUE, trim_ws = TRUE, progress = TRUE, show_col_types = FALSE) %>%
       dplyr::filter(!is.na(.data$type))%>%
       dplyr::mutate(filename = str_remove(.data$filename, "\\.mzML")) %>%
       dplyr::rename(ANALYSIS_ID = .data$filename) %>%
