@@ -17,7 +17,8 @@ plot_responsecurves(
   point_size = 2,
   line_width = 1,
   text_scale_factor = 1,
-  return_plot_list = FALSE
+  return_plot_list = FALSE,
+  base_size = 7
 )
 }
 \arguments{
@@ -46,6 +47,8 @@ plot_responsecurves(
 \item{text_scale_factor}{text scale factor}
 
 \item{return_plot_list}{return plot as list}
+
+\item{base_size}{base font size}
 }
 \value{
 A list of ggplot2 objects

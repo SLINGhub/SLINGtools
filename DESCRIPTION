@@ -1,6 +1,6 @@
 Package: SLINGtools
 Title: Mass Spectrometry and Lipidomics Data Analysis in R
-Version: 0.0.0.9005
+Version: 0.0.0.9006
 Authors@R: 
     person("Bo", "Burla", , "bo.burla@nus.edu.sg", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-5918-3249"))
@@ -12,7 +12,12 @@ RoxygenNote: 7.2.3
 Suggests: 
     knitr,
     rmarkdown,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    ggforce,
+    ggbeeswarm,
+    cowplot,
+    ggrepel,
+    ggsignif
 Config/testthat/edition: 3
 URL: https://github.com/SLINGhub/SLINGtools
 BugReports: https://github.com/SLINGhub/SLINGtools/issues
@@ -25,7 +30,6 @@ Imports:
     magrittr,
     MASS,
     methods,
-    openxlsx,
     purrr,
     readr,
     readxl,
@@ -38,7 +42,8 @@ Imports:
     tidyselect,
     forcats,
     ggplot2,
-    ggh4x,
-    fs,
-    cowplot
+    fs, 
+    ComplexHeatmap,
+    openxlsx,
+    ggh4x
 VignetteBuilder: knitr

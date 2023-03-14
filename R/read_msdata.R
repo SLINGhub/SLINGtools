@@ -290,6 +290,7 @@ read_table_wide <- function(data, file, field, sheet = "", silent = FALSE) {
 #' Read and convert an Agilent MassHunter Quant CSV result file
 #'
 #' @param filename File path of MassHunter Quant CSV file
+#' @param use_mrmkit_normdata use raw or MRMkit-normalized data
 #' @param silent Suppress messages
 #'
 #' @return A tibble in the long format
@@ -311,23 +312,22 @@ read_table_wide <- function(data, file, field, sheet = "", silent = FALSE) {
 #' d
 #'
 #'
-read_MRMkit_raw_area_CSV<- function(filename, silent = FALSE) {
+read_MRMkit_raw_area_CSV<- function(filename, use_mrmkit_normdata = FALSE, silent = FALSE) {
   d_mrmkit_raw <- readr::read_csv(filename, col_types = readr::cols(.default = "c"),
                                        col_names = TRUE, trim_ws = TRUE)
 
   # Extract MRMkit's "QC" info
   d_mrmkit_featureinfo <- d_mrmkit_raw %>%
-    dplyr::slice(1:3) %>%
+    dplyr::filter(.data$name %in% c("Q1", "Q3", "RT", "D-ratio")) %>%
     tidyr::pivot_longer(-.data$name, names_to = "FEATURE_NAME", values_to = "value") %>%
     tidyr::pivot_wider(names_from = "name" ,values_from = "value") %>%
     dplyr::mutate(FEATURE_NAME = dplyr::if_else(stringr::str_detect(.data$FEATURE_NAME, "RT"), stringr::str_squish(stringr::str_extract(.data$FEATURE_NAME, ".*(?= RT)")),.data$FEATURE_NAME)) %>%
-    dplyr::rename(PRECURSOR_MZ = .data$precursor, PRODUCT_MZ = .data$product) %>%
-    dplyr::mutate(dplyr::across(.data$PRECURSOR_MZ:.data$RT, as.numeric))  %>%
-    dplyr::mutate(RT = .data$RT/60)
+    dplyr::rename(PRECURSOR_MZ = .data$Q1, PRODUCT_MZ = .data$Q3) %>%
+    dplyr::mutate(dplyr::across(dplyr::any_of(c("PRECURSOR_MZ", "PRODUCT_MZ", "RT")), as.numeric))
 
 
   d_mrmkit_data <- d_mrmkit_raw %>%
-    dplyr::slice(-1:-3) %>%
+    dplyr::filter(!.data$name %in% c("Q1", "Q3", "RT", "D-ratio")) %>%
     dplyr::mutate(RUN_ID = dplyr::row_number(), .before = .data$name) %>%
     tidyr::pivot_longer(-.data$RUN_ID:-.data$name, names_to = "FEATURE_NAME", values_to = "Intensity") %>%
     dplyr::rename(ANALYSIS_ID  = .data$name) %>%
@@ -338,7 +338,10 @@ read_MRMkit_raw_area_CSV<- function(filename, silent = FALSE) {
     dplyr::relocate(.data$Intensity, .after = dplyr::last_col()) %>%
     dplyr::mutate(dplyr::across(tidyselect::where(is.character), stringr::str_squish))
 
-  d_mrmkit_data
+  if(use_mrmkit_normdata)
+    d_mrmkit_data |> filter(str_detect(.data$ANALYSIS_ID, "^norm_"))
+  else
+    d_mrmkit_data |> filter(!str_detect(.data$ANALYSIS_ID, "^norm_"))
 
 }
 

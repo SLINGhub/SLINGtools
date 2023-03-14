@@ -29,6 +29,8 @@
 #' @param page_no Show page number
 #' @param y_label_text Overwrite y label with this text
 #' @param silent Verbose or silent
+#' @param point_stroke_width point stroke width
+#' @param base_size base font size of plot
 #' @param return_plot_list return list with plots
 #
 #'
@@ -51,7 +53,7 @@ plot_runscatter <- function(data, y_var, transition_filter, filter_exclude = FAL
                             show_driftcorrection, trend_samples_fun = "loess", trend_samples_col , after_correction,  plot_other_qc = TRUE,
                             show_batches, batches_as_shades, batch_line_color, batch_shading_color,
                             outputPDF, filename, cols_page, rows_page, annot_scale, paper_orientation = "LANDSCAPE" ,
-                            point_transparency=1, point_size=2, page_no = NA, y_label_text=NA, silent = FALSE, return_plot_list = TRUE) {
+                            point_transparency=1, point_size=2, point_stroke_width = .8, page_no = NA, y_label_text=NA, silent = FALSE, return_plot_list = TRUE, base_size = 7) {
 
   y_var_s <- rlang::sym(y_var)
   y_label <- dplyr::if_else(cap_values, paste0(ifelse(is.na(y_label_text), y_var, y_label_text), " (capped at min(", cap_SPL_SD, "x SD[SPL]) ,", cap_QC_SD, "x SD[QC]"), y_var)
@@ -100,7 +102,7 @@ plot_runscatter <- function(data, y_var, transition_filter, filter_exclude = FAL
   else
     page_range <- page_no
 
-  print(paste0("Plotting ", max(page_range), " pages..."))
+  if(!silent) print(paste0("Plotting ", max(page_range), " pages..."))
 
   #p_list <- vector("list", length(page_range))
   p_list <- list()
@@ -110,7 +112,7 @@ plot_runscatter <- function(data, y_var, transition_filter, filter_exclude = FAL
                              trend_samples_fun, trend_samples_col, after_correction = after_correction, QC_TYPE_fit = QC_TYPE_fit, outputPDF = outputPDF, page_no = i,
                              point_size = point_size, cap_values = cap_values, point_transparency = point_transparency, annot_scale = annot_scale,
                              show_batches = show_batches, batches_as_shades = batches_as_shades, batch_line_color = batch_line_color, plot_other_qc,
-                             batch_shading_color = batch_shading_color, y_label=y_label)
+                             batch_shading_color = batch_shading_color, y_label=y_label, base_size=base_size, point_stroke_width=point_stroke_width)
     plot(p)
     p_list[[i]] <- p
   }
@@ -121,7 +123,7 @@ plot_runscatter <- function(data, y_var, transition_filter, filter_exclude = FAL
 runscatter_one_page <- function(dat_filt, data, d_batches, cols_page, rows_page, page_no,
                                 show_driftcorrection, after_correction = FALSE, QC_TYPE_fit,cap_values,
                                 show_batches, batches_as_shades, batch_line_color, batch_shading_color, trend_samples_fun, trend_samples_col, plot_other_qc,
-                                outputPDF, annot_scale, point_transparency, point_size=2, y_label){
+                                outputPDF, annot_scale, point_transparency, point_size=2, y_label, base_size, point_stroke_width){
 
   point_size = ifelse(missing(point_size), 2, point_size)
   point_stroke_width <- dplyr::if_else(outputPDF, .3, .2 * (1 + annot_scale/5))
@@ -222,7 +224,7 @@ runscatter_one_page <- function(dat_filt, data, d_batches, cols_page, rows_page,
     ggplot2::ylab(label = y_label) +
     ggplot2::scale_y_continuous(limits = c(0, NA), expand = ggplot2::expansion(mult = c(0.02,0.03))) +
     #expand_limits(y = 0) +
-    ggplot2::theme_light() +
+    ggplot2::theme_light(base_size = base_size) +
 
     ggplot2::theme(plot.title = ggplot2::element_text(size=1, face="bold"),
           strip.text = ggplot2::element_text(size=10*annot_scale, face="bold"),
@@ -251,7 +253,8 @@ plot_responsecurves_page <- function(dataset,
                                      columns_page,
                                      point_size,
                                      line_width,
-                                     text_scale_factor){
+                                     text_scale_factor,
+                                     base_size){
 
   y_var <- rlang::sym(response_variable)
   #browser()
@@ -281,7 +284,7 @@ plot_responsecurves_page <- function(dataset,
       trim_blank = FALSE) +
     ggplot2::geom_point(size = point_size) +
     ggplot2::xlab("Sample Amount (Relative to BQC/TQC)")+
-    ggplot2::theme_light(base_size = 8 * text_scale_factor) +
+    ggplot2::theme_light(base_size = base_size) +
     ggplot2::theme(strip.text = ggplot2::element_text(size=9*text_scale_factor, face="bold"),
                     strip.background = ggplot2::element_rect(size=0.0001,fill="#8C8C8C"))
 }
@@ -301,6 +304,7 @@ plot_responsecurves_page <- function(dataset,
 #' @param line_width regression line width
 #' @param text_scale_factor text scale factor
 #' @param return_plot_list return plot as list
+#' @param base_size base font size
 #'
 #' @return A list of ggplot2 objects
 #' @export
@@ -320,7 +324,7 @@ plot_responsecurves <- function(data,
                                 point_size = 2,
                                 line_width = 1,
                                 text_scale_factor = 1,
-                                return_plot_list = FALSE) {
+                                return_plot_list = FALSE, base_size = 7) {
 
   if (output_PDF & pdf_file_name == "") stop("Please set 'pdf_file_name'")
 
@@ -366,7 +370,8 @@ plot_responsecurves <- function(data,
           columns_page = columns_page,
           point_size = point_size,
           line_width = line_width,
-          text_scale_factor = text_scale_factor
+          text_scale_factor = text_scale_factor,
+          base_size = base_size
         )
     ))
 

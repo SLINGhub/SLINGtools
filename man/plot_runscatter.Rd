@@ -31,10 +31,12 @@ plot_runscatter(
   paper_orientation = "LANDSCAPE",
   point_transparency = 1,
   point_size = 2,
+  point_stroke_width = 0.8,
   page_no = NA,
   y_label_text = NA,
   silent = FALSE,
-  return_plot_list = TRUE
+  return_plot_list = TRUE,
+  base_size = 7
 )
 }
 \arguments{
@@ -90,6 +92,8 @@ plot_runscatter(
 
 \item{point_size}{point size}
 
+\item{point_stroke_width}{point stroke width}
+
 \item{page_no}{Show page number}
 
 \item{y_label_text}{Overwrite y label with this text}
@@ -97,6 +101,8 @@ plot_runscatter(
 \item{silent}{Verbose or silent}
 
 \item{return_plot_list}{return list with plots}
+
+\item{base_size}{base font size of plot}
 }
 \value{
 A list of ggplot2 plots or NULL

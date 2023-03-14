@@ -4,10 +4,12 @@
 \alias{read_MRMkit_raw_area_CSV}
 \title{Read and convert an Agilent MassHunter Quant CSV result file}
 \usage{
-read_MRMkit_raw_area_CSV(filename, silent = FALSE)
+read_MRMkit_raw_area_CSV(filename, use_mrmkit_normdata = FALSE, silent = FALSE)
 }
 \arguments{
 \item{filename}{File path of MassHunter Quant CSV file}
+
+\item{use_mrmkit_normdata}{use raw or MRMkit-normalized data}
 
 \item{silent}{Suppress messages}
 }
