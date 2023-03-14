@@ -408,7 +408,7 @@ plot_responsecurves <- function(data,
 #' @return ggplot2 object
 #' @export
 #'
-plot_pca_sling <- function(data, variable, log_transform, dim_x, dim_y, grouping, point_size = 2, fill_alpha = 0.1) {
+plot_pca_qc <- function(data, variable, log_transform, dim_x, dim_y, grouping, point_size = 2, fill_alpha = 0.1) {
 
   d_wide = data@dataset  %>% filter(.data$QC_TYPE %in% c("BQC", "TQC", "NIST", "LTR", "SPL"), !stringr::str_detect(.data$FEATURE_NAME, "\\(IS") ) %>%
     dplyr::select("ANALYSIS_ID", "QC_TYPE", "BATCH_ID", "FEATURE_NAME", {{variable}})
