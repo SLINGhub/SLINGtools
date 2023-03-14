@@ -394,6 +394,20 @@ plot_responsecurves <- function(data,
     d_rqc_grp
 }
 
+#' PCA plot for QC
+#' @param data MidarExperiment object
+#' @param variable which variable to use for plot
+#' @param log_transform log transform data for plot
+#' @param dim_x PCA dimension on x axis
+#' @param dim_y PCA dimension on y axis
+#'
+#' @param grouping field used for ellipses
+#' @param point_size size of points
+#' @param fill_alpha transparency of points
+#'
+#' @return ggplot2 object
+#' @export
+
 
 
 plot_pca_sling <- function(data, variable, log_transform, dim_x, dim_y, grouping, point_size = 2, fill_alpha = 0.1) {
