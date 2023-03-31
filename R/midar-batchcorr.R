@@ -17,13 +17,14 @@ batch_corr_center <- function(data, qc_types, center_by_fun = "median"){
   ds <- data@dataset
   ds <- ds %>%
     dplyr::group_by(.data$FEATURE_NAME,  .data$BATCH_ID) %>%
-    dplyr::mutate(CONC_FINAL = .data$Concentration/median(.data$Concentration[.data$QC_TYPE %in% qc_types], na.rm = TRUE)) %>%
+    dplyr::mutate(CONC_FINAL = .data$Concentration/median(.data$Concentration[.data$QC_TYPE %in% qc_types], na.rm = TRUE)) |>
     dplyr::ungroup()
 
 
   ds <- ds %>%
     dplyr::group_by(.data$FEATURE_NAME) %>%
-    dplyr::mutate(CONC_FINAL =  .data$CONC_FINAL * median(.data$Concentration[.data$QC_TYPE %in% qc_types], na.rm = TRUE))
+    dplyr::mutate(CONC_FINAL =  .data$CONC_FINAL * median(.data$Concentration[.data$QC_TYPE %in% qc_types], na.rm = TRUE)) |>
+    dplyr::ungroup()
 
   data@dataset <- ds
   data
@@ -100,7 +101,8 @@ drift_corr_loess <- function(data, qc_types, smooth_by_batch = TRUE, log2_transf
            CV_ADJ_SPL = sd(.data$Y_ADJ[.data$QC_TYPE == "SPL"], na.rm = TRUE)/mean(.data$Y_ADJ[.data$QC_TYPE == "SPL"], na.rm = TRUE) *100) %>%
     mutate(
       DRIFT_CORRECTED = (.data$CV_RAW_SPL - .data$CV_ADJ_SPL) >  treshold_smpl_cv_delta,
-      Y_FINAL = dplyr::if_else(apply_only_if_smpl_cv_lower & .data$DRIFT_CORRECTED, .data$Y_ADJ, .data$Concentration))
+      Y_FINAL = dplyr::if_else(apply_only_if_smpl_cv_lower & .data$DRIFT_CORRECTED, .data$Y_ADJ, .data$Concentration)) |>
+    ungroup()
 
 
   data@dataset <- data@dataset %>% dplyr::left_join(d %>% dplyr::select("ANALYSIS_ID", "FEATURE_NAME", CURVE_PREDICTED = "Y_PREDICTED", CONC_DRIFT_ADJ = "Y_ADJ", "CV_RAW_SPL", "CV_ADJ_SPL", "DRIFT_CORRECTED", CONC_FINAL = "Y_FINAL"))
