@@ -56,7 +56,7 @@ setMethod("writeReportXLS", signature = "MidarExperiment", function(data, filena
 
 
  table_list <- list(
-            "Intensities_All" = d_intensity_wide,
+            "IntenAll" = d_intensity_wide,
             "Conc_All" = d_conc_wide,
             "Conc_QCfilt" = d_conc_wide_QC,
             "QC" = data@d_QC,
