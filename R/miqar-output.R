@@ -19,7 +19,7 @@ setGeneric("writeReportXLS", function(data, filename) standardGeneric("writeRepo
 #' @importFrom utils packageVersion
 
 #'
-setMethod("writeReportXLS", signature = "MidarExperiment", function(data, filename) {
+  setMethod("writeReportXLS", signature = "MidarExperiment", function(data, filename) {
 
   if (!("Concentration" %in% names(data@dataset))) stop("Variable '", "Concentration",  "' does not (yet) exist in dataset")
   if (!stringr::str_detect(filename, ".xlsx")) filename = paste0(filename, ".xlsx")
@@ -56,7 +56,7 @@ setMethod("writeReportXLS", signature = "MidarExperiment", function(data, filena
 
 
  table_list <- list(
-            "IntenAll" = d_intensity_wide,
+            "Intensities_All" = d_intensity_wide,
             "Conc_All" = d_conc_wide,
             "Conc_QCfilt" = d_conc_wide_QC,
             "QC" = data@d_QC,
