@@ -2,7 +2,7 @@
 % Please edit documentation in R/miqar-processing.R
 \name{getDatasetFilteredQC}
 \alias{getDatasetFilteredQC}
-\title{getDatasetFilteredQC generic}
+\title{getDatasetFilteredQC}
 \usage{
 getDatasetFilteredQC(
   data,
@@ -33,5 +33,5 @@ getDatasetFilteredQC(
 \item{RQC_CURVE}{= RQC_CURVE}
 }
 \description{
-getDatasetFilteredQC generic
+getDatasetFilteredQC
 }

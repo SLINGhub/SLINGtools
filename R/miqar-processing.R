@@ -262,7 +262,7 @@ setMethod("saveQCinfo", signature = "MidarExperiment", function(data, filename) 
 
 })
 
-#' getDatasetFilteredQC generic
+#' getDatasetFilteredQC
 #'
 #' @param data MidarExperiment object
 #' @param Intensity_BQC_min Intensity_BQC_min
@@ -272,40 +272,18 @@ setMethod("saveQCinfo", signature = "MidarExperiment", function(data, filename) 
 #' @param SB_RATIO_min = SB_RATIO_min
 #' @param R2_min = R2_min
 #' @param RQC_CURVE = RQC_CURVE
-#'
-setGeneric("getDatasetFilteredQC", function(data, Intensity_BQC_min = NA, CV_BQC_max = NA, Intensity_TQC_min = NA, CV_TQC_max = NA, SB_RATIO_min = NA, R2_min = NA, RQC_CURVE = NA) standardGeneric("getDatasetFilteredQC"))
-
-#' Save the QC table to a CSV file
-#'
-#' @param data MidarExperiment object
-#' @param Intensity_BQC_min Intensity_BQC_min
-#' @param CV_BQC_max = CV_BQC_max
-#' @param Intensity_TQC_min = Intensity_TQC_min
-#' @param CV_TQC_max = CV_TQC_max
-#' @param SB_RATIO_min = SB_RATIO_min
-#' @param R2_min = R2_min
-#' @param RQC_CURVE = RQC_CURVE
-#'
 #' @export
-#'
-#' @importFrom glue glue
-#' @importFrom readr write_csv
-#' @importFrom tidyr pivot_wider
 
-#' @importFrom stats as.formula lm median na.exclude quantile sd
-#'
-#'
-setMethod("getDatasetFilteredQC",
-          signature = "MidarExperiment",
-          function(data,
+getDatasetFilteredQC <-  function(data,
                    Intensity_BQC_min = NA,
                    CV_BQC_max = NA,
                    Intensity_TQC_min = NA,
                    CV_TQC_max = NA,
                    SB_RATIO_min = NA,
                    R2_min = NA,
-                   RQC_CURVE = 1
+                   RQC_CURVE = NA
                    ){
+
 
   if (nrow(data@d_QC)== 0) stop("QC info has not yet been calculated. Please apply 'calcQC' first.")
 
@@ -322,12 +300,20 @@ setMethod("getDatasetFilteredQC",
                                   is.na(.data$conc_CV_TQC)|.data$conc_CV_TQC < CV_TQC_max,
                                   is.na(.data$SB_Ratio_Q10)|.data$SB_Ratio_Q10 > SB_RATIO_min)
 
-  if("R2_RQC_A" %in% names(data@d_QC)) d_filt <- d_filt %>% filter(is.na(.data$R2_RQC_A)|.data$R2_RQC_A > R2_min)
+
+  if ((!is.na(R2_min))&is.na(RQC_CURVE)) stop("RQC Curve ID not defined! Please set RQC_CURVE parameter or set R2_min to NA if you which not to filter based on RQC r2 values")
+  if(is.numeric(RQC_CURVE)) {
+    rqc_r2_col <- names(data@d_QC)[which(stringr::str_detect(names(data@d_QC), "R2_RQC"))[RQC_CURVE]]
+  } else {
+    rqc_r2_col <- paste0("R2_RQC_", RQC_CURVE)
+  }
+
+  if(rqc_r2_col %in% names(data@d_QC)) d_filt <- d_filt %>% filter(is.na(!!ensym(rqc_r2_col))|!!ensym(rqc_r2_col) > R2_min)
 
   print(glue::glue("{nrow(d_filt)} of {nrow(data@d_QC)} features passed QC filtering."))
   data@dataset_QC_filtered <- data@dataset %>% dplyr::right_join(d_filt|> dplyr::select("FEATURE_NAME"), by = "FEATURE_NAME")
   data
-})
+}
 
 
 
