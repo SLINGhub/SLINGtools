@@ -45,7 +45,7 @@ writeReportXLS <- function(data, filename) {
     ~Info, ~Value,
     "Date Report", lubridate::now(),
     "Author", Sys.info()[["user"]],
-    "LIDAR Version", packageVersion("SLINGtools") ,
+    "MiDAR Version", packageVersion("SLINGtools") ,
     "", "",
     "Concentration Unit", get_conc_unit(data@annot_analyses$SAMPLE_AMOUNT_UNIT))
 
