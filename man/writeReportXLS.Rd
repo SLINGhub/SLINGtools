@@ -2,7 +2,7 @@
 % Please edit documentation in R/miqar-output.R
 \name{writeReportXLS}
 \alias{writeReportXLS}
-\title{writeReportXLS}
+\title{Writes all a data processing report to an EXCEL file}
 \usage{
 writeReportXLS(data, filename)
 }
@@ -12,5 +12,5 @@ writeReportXLS(data, filename)
 \item{filename}{File name and path of the Excel file}
 }
 \description{
-writeReportXLS
+Writes all a data processing report to an EXCEL file
 }

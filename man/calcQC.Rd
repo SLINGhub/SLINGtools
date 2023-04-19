@@ -2,13 +2,13 @@
 % Please edit documentation in R/miqar-processing.R
 \name{calcQC}
 \alias{calcQC}
-\title{calcQC generic}
+\title{Calculate QC parameters for each feature}
 \usage{
 calcQC(data)
 }
 \arguments{
-\item{data}{MidarExperiment objec}
+\item{data}{MidarExperiment object}
 }
 \description{
-calcQC generic
+Calculate QC parameters for each feature
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/miqar-processing.R
 \name{saveQCinfo}
 \alias{saveQCinfo}
-\title{saveQCinfo generic}
+\title{Save the QC table to a CSV file}
 \usage{
 saveQCinfo(data, filename)
 }
@@ -12,5 +12,5 @@ saveQCinfo(data, filename)
 \item{filename}{File name with path of exported CSV file}
 }
 \description{
-saveQCinfo generic
+Save the QC table to a CSV file
 }

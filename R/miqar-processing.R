@@ -15,12 +15,6 @@ get_conc_unit <- function(sample_amount_unit){
 }
 
 
-#' normalizeByISTD
-#'
-#' @param data MidarExperiment object
-setGeneric("normalizeByISTD", function(data) standardGeneric("normalizeByISTD"))
-
-
 
 #' Normalize Intensities with corresponding ISTD Intensities
 #'
@@ -31,7 +25,7 @@ setGeneric("normalizeByISTD", function(data) standardGeneric("normalizeByISTD"))
 #'
 #' @importFrom glue glue
 
-setMethod("normalizeByISTD", signature = "MidarExperiment", function(data) {
+normalizeByISTD <- function(data) {
   if(nrow(data@annot_features) < 1) stop("ISTD map is missing...please import transition annotations.")
   if("normIntensity" %in% names(data@dataset)) {
     data@dataset <- data@dataset %>% select(-dplyr::any_of(c("normIntensity", "pmol_total", "Concentration")))
@@ -54,13 +48,7 @@ setMethod("normalizeByISTD", signature = "MidarExperiment", function(data) {
   print(glue::glue("{n_features} features normalized with {n_ISTDs} ISTDs. \n"))
 
   data
-})
-
-#' quantitateByISTD
-#'
-#' @param data MidarExperiment object
-setGeneric("quantitateByISTD", function(data) standardGeneric("quantitateByISTD"))
-
+}
 
 #' Quantitate using sample and spiked ISTD amounts
 #'
@@ -70,9 +58,8 @@ setGeneric("quantitateByISTD", function(data) standardGeneric("quantitateByISTD"
 #' @export
 #'
 #' @importFrom glue glue
-
-
-setMethod("quantitateByISTD", signature = "MidarExperiment", function(data) {
+#'
+quantitateByISTD <- function(data) {
   if(nrow(data@annot_istd) < 1) stop("ISTD concetrations are missing...please import them first.")
 
   if(!(c("normIntensity") %in% names(data@dataset))) stop("Data needs first to be ISTD normalized. Please apply function 'normalizeByISTD' first.")
@@ -101,17 +88,10 @@ setMethod("quantitateByISTD", signature = "MidarExperiment", function(data) {
                    Concentration unit: [{conc_unit}]"))
 
   data
-})
+}
 
 
 
-#' exportWideCSV generic
-#'
-#' @param data MidarExperiment object
-#' @param variable Variable to be exported
-#' @param filename File name with path of exported CSV file
-
-setGeneric("exportWideCSV", function(data, variable, filename) standardGeneric("exportWideCSV"))
 
 #' Export any parameter to a wide-format table
 #'
@@ -124,10 +104,8 @@ setGeneric("exportWideCSV", function(data, variable, filename) standardGeneric("
 #' @importFrom glue glue
 #' @importFrom readr write_csv
 #' @importFrom tidyr pivot_wider
-
 #'
-#'
-setMethod("exportWideCSV", signature = "MidarExperiment", function(data, variable, filename) {
+exportWideCSV <- function(data, variable, filename) {
 
   var <- dplyr::sym(variable)
 
@@ -140,13 +118,7 @@ setMethod("exportWideCSV", signature = "MidarExperiment", function(data, variabl
   readr::write_csv(ds, file = filename, num_threads = 4, col_names = TRUE)
   invisible(ds)
 
-})
-
-#' calcQC generic
-#'
-#' @param data MidarExperiment objec
-
-setGeneric("calcQC", function(data) standardGeneric("calcQC"))
+}
 
 #' Calculate QC parameters for each feature
 #'
@@ -162,8 +134,7 @@ setGeneric("calcQC", function(data) standardGeneric("calcQC"))
 #' @importFrom broom glance
 #' @importFrom dplyr summarise
 #'
-#'
-setMethod("calcQC", signature = "MidarExperiment", function(data) {
+calcQC <- function(data) {
 
   #if(!(c("normIntensity") %in% names(data@dataset))) warning("No normali is not normalized")
 
@@ -230,15 +201,8 @@ setMethod("calcQC", signature = "MidarExperiment", function(data) {
   }
   data
 
-})
+}
 
-
-#' saveQCinfo generic
-#'
-#' @param data MidarExperiment object
-#' @param filename File name with path of exported CSV file
-
-setGeneric("saveQCinfo", function(data, filename) standardGeneric("saveQCinfo"))
 
 #' Save the QC table to a CSV file
 #'
@@ -253,14 +217,14 @@ setGeneric("saveQCinfo", function(data, filename) standardGeneric("saveQCinfo"))
 
 #'
 #'
-setMethod("saveQCinfo", signature = "MidarExperiment", function(data, filename) {
+saveQCinfo <- function(data, filename) {
 
   if (nrow(data@d_QC)== 0) stop("QC info has not yet been calculated. Please apply 'calcQC' first.")
 
   readr::write_csv(data@d_QC, file = filename, num_threads = 4, col_names = TRUE)
   invisible(data@d_QC)
 
-})
+}
 
 #' getDatasetFilteredQC
 #'

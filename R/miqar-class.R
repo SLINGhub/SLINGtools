@@ -209,23 +209,7 @@ check_integrity <-  function(object) {
 #'
 methods::setValidity("MidarExperiment", check_integrity)
 
-#' loadMasshunterCSV
-#'
-#' @param data MidarExperiment object
-#' @param filename file name of the MH CSV file
 
-setGeneric("loadMasshunterCSV", function(data,filename) standardGeneric("loadMasshunterCSV"))
-
-#' loadMSOrganizerXLM
-#'
-#' @param data MidarExperiment object
-#' @param filename file name of the MSOrganizer .XLM template
-setGeneric("loadMSOrganizerXLM", function(data, filename) standardGeneric("loadMSOrganizerXLM"))
-
-#' normalizeByISTD
-#'
-#' @param data MidarExperiment object
-setGeneric("normalizeByISTD", function(data) standardGeneric("normalizeByISTD"))
 
 
 
@@ -240,12 +224,12 @@ setGeneric("normalizeByISTD", function(data) standardGeneric("normalizeByISTD"))
 #' @export
 #'
 #'
-setMethod("loadMasshunterCSV", signature = "MidarExperiment", function(data, filename) {
+loadMasshunterCSV <- function(data, filename) {
   data@dataset_orig <- read_MassHunterCSV(filename, silent = FALSE)
   data@dataset_orig <- data@dataset_orig %>% dplyr::rename(Intensity = "Area")
   stopifnot(methods::validObject(data))
   data
-})
+}
 
 #' #' load_MRMkit_csv
 #' #'
@@ -276,7 +260,7 @@ setMethod("loadMasshunterCSV", signature = "MidarExperiment", function(data, fil
 #' @export
 #'
 
-setMethod("loadMSOrganizerXLM", signature = "MidarExperiment", function(data, filename) {
+loadMSOrganizerXLM <- function(data, filename) {
   d_annot <- import_MSOrganizerXLM(filename)
 
   data@annot_analyses <- data@dataset_orig %>%
@@ -325,7 +309,7 @@ setMethod("loadMSOrganizerXLM", signature = "MidarExperiment", function(data, fi
     dplyr::bind_rows(pkg.env$dataset_templates$dataset_orig_template)
   stopifnot(methods::validObject(data))
   data
-})
+}
 
 
 

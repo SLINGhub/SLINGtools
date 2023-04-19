@@ -1,11 +1,3 @@
-#' writeReportXLS
-#'
-#' @param data MidarExperiment object
-#' @param filename File name and path of the Excel file
-setGeneric("writeReportXLS", function(data, filename) standardGeneric("writeReportXLS"))
-
-
-
 #' Writes all a data processing report to an EXCEL file
 #'
 #' @param data MidarExperiment object
@@ -19,7 +11,7 @@ setGeneric("writeReportXLS", function(data, filename) standardGeneric("writeRepo
 #' @importFrom utils packageVersion
 
 #'
-  setMethod("writeReportXLS", signature = "MidarExperiment", function(data, filename) {
+writeReportXLS <- function(data, filename) {
 
   if (!("Concentration" %in% names(data@dataset))) stop("Variable '", "Concentration",  "' does not (yet) exist in dataset")
   if (!stringr::str_detect(filename, ".xlsx")) filename = paste0(filename, ".xlsx")
@@ -35,13 +27,16 @@ setGeneric("writeReportXLS", function(data, filename) standardGeneric("writeRepo
     dplyr::select(dplyr::any_of(c("ANALYSIS_ID", "QC_TYPE", "AcqTimeStamp", "FEATURE_NAME", "Concentration"))) %>%
     tidyr::pivot_wider(names_from = "FEATURE_NAME", values_from = "Concentration")
 
-  if("FEATURE_NAME" %in% names(data@dataset_QC_filtered)) {
+    if("FEATURE_NAME" %in% names(data@dataset_QC_filtered)) {
 
     d_conc_wide_QC <- data@dataset_QC_filtered %>%
-      # dplyr::filter(.data$QC_TYPE %in% c("SPL", "TQC", "BQC", "NIST", "LTR")) %>%
-      dplyr::select(dplyr::any_of(c("ANALYSIS_ID", "QC_TYPE", "AcqTimeStamp", "FEATURE_NAME", "Concentration"))) %>%
-      dplyr::filter(!str_detect(.data$FEATURE_NAME, "\\(IS")) %>%
+      dplyr::filter(.data$QC_TYPE %in% c("SPL", "TQC", "BQC", "NIST", "LTR")) %>%
+      dplyr::select(dplyr::any_of(c("ANALYSIS_ID", "QC_TYPE", "isISTD.x", "isQUANTIFIER", "AcqTimeStamp", "FEATURE_NAME", "Concentration"))) %>%
+      dplyr::filter(!str_detect(.data$FEATURE_NAME, "\\(IS"), !.data$isISTD.x,.data$isQUANTIFIER) %>%
       tidyr::pivot_wider(names_from = "FEATURE_NAME", values_from = "Concentration")
+
+    d_conc_wide_QC_SPL <- d_conc_wide_QC |> dplyr::filter(.data$QC_TYPE == "SPL") |> dplyr::select(!"QC_TYPE":"isQUANTIFIER")
+
   } else {
     d_conc_wide_QC <- data@dataset_QC_filtered
   }
@@ -59,6 +54,7 @@ setGeneric("writeReportXLS", function(data, filename) standardGeneric("writeRepo
             "Intensities_All" = d_intensity_wide,
             "Conc_All" = d_conc_wide,
             "Conc_QCfilt" = d_conc_wide_QC,
+            "Conc_Final_SPL" = d_conc_wide_QC_SPL,
             "QC" = data@d_QC,
             "Info" = d_info,
             "SampleMetadata" = data@annot_analyses,
@@ -67,4 +63,4 @@ setGeneric("writeReportXLS", function(data, filename) standardGeneric("writeRepo
             "BatchInfo" = data@annot_batch_info)
 
   openxlsx::write.xlsx(x = table_list, file = filename, overwrite = TRUE )
-})
+}

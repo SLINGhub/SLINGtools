@@ -11,6 +11,9 @@ loadMasshunterCSV(data, filename)
 
 \item{filename}{file name of the MH CSV file}
 }
+\value{
+MidarExperiment object
+}
 \description{
 loadMasshunterCSV
 }

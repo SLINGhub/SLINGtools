@@ -2,7 +2,7 @@
 % Please edit documentation in R/miqar-processing.R
 \name{exportWideCSV}
 \alias{exportWideCSV}
-\title{exportWideCSV generic}
+\title{Export any parameter to a wide-format table}
 \usage{
 exportWideCSV(data, variable, filename)
 }
@@ -14,5 +14,5 @@ exportWideCSV(data, variable, filename)
 \item{filename}{File name with path of exported CSV file}
 }
 \description{
-exportWideCSV generic
+Export any parameter to a wide-format table
 }
